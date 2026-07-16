@@ -1,0 +1,4222 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickWriter AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ===== CSS Variables ===== */
+        :root {
+            --primary: #6C63FF;
+            --primary-dark: #5A52D5;
+            --primary-light: #8B83FF;
+            --secondary: #FF6584;
+            --success: #2ECC71;
+            --warning: #F1C40F;
+            --danger: #E74C3C;
+            --dark: #1A1A2E;
+            --dark-card: #16213E;
+            --dark-hover: #1F2A4A;
+            --light: #F8F9FA;
+            --light-card: #FFFFFF;
+            --light-hover: #F0F2F5;
+            --text-dark: #1A1A2E;
+            --text-light: #F8F9FA;
+            --shadow: 0 8px 32px rgba(0,0,0,0.12);
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --sidebar-width: 280px;
+        }
+
+        /* ===== Dark Mode ===== */
+        [data-theme="dark"] {
+            --bg-primary: #0F0F1A;
+            --bg-secondary: #1A1A2E;
+            --bg-card: #16213E;
+            --bg-hover: #1F2A4A;
+            --text-primary: #F8F9FA;
+            --text-secondary: #B0B8C8;
+            --border-color: #2A2A4A;
+            --shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #F0F2F5;
+            --bg-secondary: #FFFFFF;
+            --bg-card: #FFFFFF;
+            --bg-hover: #F0F2F5;
+            --text-primary: #1A1A2E;
+            --text-secondary: #6B7280;
+            --border-color: #E5E7EB;
+            --shadow: 0 8px 32px rgba(0,0,0,0.08);
+        }
+
+        /* ===== Reset & Base ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: var(--transition);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary-dark); }
+
+        /* ===== Sidebar ===== */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--bg-card);
+            border-left: 1px solid var(--border-color);
+            padding: 20px 0;
+            overflow-y: auto;
+            transition: var(--transition);
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+
+        .sidebar-brand {
+            padding: 0 24px 24px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-brand i {
+            font-size: 32px;
+            color: var(--primary);
+        }
+
+        .sidebar-brand h2 {
+            font-size: 22px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0 12px;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 4px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: var(--primary);
+            color: white;
+            transform: translateX(-4px);
+        }
+
+        .sidebar-menu a i {
+            width: 22px;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .sidebar-menu .divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 12px 16px;
+        }
+
+        .sidebar-menu .logout-btn {
+            color: var(--danger);
+        }
+
+        .sidebar-menu .logout-btn:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* ===== Main Content ===== */
+        .main-content {
+            margin-right: var(--sidebar-width);
+            padding: 24px 32px;
+            min-height: 100vh;
+            transition: var(--transition);
+        }
+
+        /* ===== Top Bar ===== */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .topbar-left h1 {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .topbar-left .badge {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: var(--success);
+            color: white;
+            font-weight: 600;
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .topbar-actions button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 12px;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid var(--border-color);
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .topbar-actions button:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .topbar-actions .theme-toggle {
+            width: 44px;
+            height: 44px;
+            padding: 0;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        /* ===== Language Selector ===== */
+        .language-selector select {
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-family: 'Cairo', sans-serif;
+            font-size: 13px;
+            cursor: pointer;
+            outline: none;
+            min-width: 160px;
+            transition: var(--transition);
+        }
+
+        .language-selector select:hover {
+            border-color: var(--primary);
+        }
+
+        .language-selector select option {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        /* ===== Pages ===== */
+        .page {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== Cards ===== */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .card-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        /* ===== Grids ===== */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        /* ===== Stats ===== */
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .stat-card .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 12px;
+        }
+
+        .stat-card .stat-icon.primary { background: rgba(108, 99, 255, 0.15); color: var(--primary); }
+        .stat-card .stat-icon.success { background: rgba(46, 204, 113, 0.15); color: var(--success); }
+        .stat-card .stat-icon.warning { background: rgba(241, 196, 15, 0.15); color: var(--warning); }
+        .stat-card .stat-icon.danger { background: rgba(231, 76, 60, 0.15); color: var(--danger); }
+        .stat-card .stat-icon.secondary { background: rgba(255, 101, 132, 0.15); color: var(--secondary); }
+
+        .stat-card .stat-number {
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .stat-card .stat-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* ===== Forms ===== */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.15);
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* ===== Buttons ===== */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(108, 99, 255, 0.3);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: var(--dark);
+        }
+
+        .btn-warning:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+
+        /* ===== Tables ===== */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th {
+            text-align: right;
+            padding: 12px 16px;
+            font-weight: 700;
+            border-bottom: 2px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        table tr:hover td {
+            background: var(--bg-hover);
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-badge.active { background: rgba(46, 204, 113, 0.15); color: var(--success); }
+        .status-badge.inactive { background: rgba(231, 76, 60, 0.15); color: var(--danger); }
+        .status-badge.pending { background: rgba(241, 196, 15, 0.15); color: var(--warning); }
+
+        /* ===== Modals ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 32px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            font-size: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* ===== Auth ===== */
+        .auth-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .auth-box {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 40px;
+            max-width: 440px;
+            width: 100%;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .auth-box .logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .auth-box .logo i {
+            font-size: 48px;
+            color: var(--primary);
+        }
+
+        .auth-box .logo h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-top: 8px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .auth-box .logo p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .auth-box .btn {
+            width: 100%;
+            justify-content: center;
+            padding: 14px;
+            font-size: 16px;
+        }
+
+        .auth-link {
+            text-align: center;
+            margin-top: 16px;
+            color: var(--text-secondary);
+        }
+
+        .auth-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .auth-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* ===== Profit Bar ===== */
+        .profit-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border-top: 2px solid var(--border-color);
+            padding: 16px 32px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .profit-bar.active {
+            display: flex;
+        }
+
+        .profit-bar .profit-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .profit-bar .profit-info span {
+            font-weight: 700;
+        }
+
+        .profit-bar .profit-info .amount {
+            color: var(--success);
+            font-size: 20px;
+        }
+
+        .profit-bar .profit-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* ===== Maintenance ===== */
+        .maintenance-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(12px);
+            z-index: 99999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .maintenance-overlay.active {
+            display: flex;
+        }
+
+        .maintenance-overlay i {
+            font-size: 64px;
+            color: var(--warning);
+            margin-bottom: 24px;
+        }
+
+        .maintenance-overlay h1 {
+            font-size: 32px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 12px;
+        }
+
+        .maintenance-overlay p {
+            color: rgba(255,255,255,0.7);
+            font-size: 18px;
+            text-align: center;
+        }
+
+        /* ===== Notifications ===== */
+        .notification-badge {
+            position: relative;
+        }
+
+        .notification-badge .badge-count {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .notifications-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            width: 360px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 12px;
+            display: none;
+            margin-top: 8px;
+        }
+
+        .notifications-dropdown.active {
+            display: block;
+        }
+
+        .notification-item {
+            padding: 12px;
+            border-radius: 8px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .notification-item:hover {
+            background: var(--bg-hover);
+        }
+
+        .notification-item .noti-title {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .notification-item .noti-time {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(100%);
+                width: 300px;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-right: 0;
+                padding: 16px;
+            }
+
+            .sidebar-toggle {
+                display: flex !important;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .grid-2, .grid-3, .grid-4 {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .topbar-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .auth-box {
+                padding: 24px;
+            }
+
+            .modal {
+                padding: 20px;
+                margin: 12px;
+            }
+
+            .profit-bar {
+                padding: 12px 16px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .profit-bar .profit-info {
+                justify-content: center;
+            }
+
+            .profit-bar .profit-actions {
+                justify-content: center;
+            }
+
+            .notifications-dropdown {
+                width: 300px;
+                right: -100px;
+                left: auto;
+            }
+
+            .language-selector select {
+                min-width: 120px;
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+        }
+
+        .sidebar-toggle {
+            display: none;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-primary);
+        }
+
+        /* ===== Utilities ===== */
+        .text-center { text-align: center; }
+        .text-muted { color: var(--text-secondary); }
+        .mt-8 { margin-top: 8px; }
+        .mt-16 { margin-top: 16px; }
+        .mt-24 { margin-top: 24px; }
+        .mb-16 { margin-bottom: 16px; }
+        .mb-24 { margin-bottom: 24px; }
+        .flex { display: flex; }
+        .flex-center { display: flex; align-items: center; justify-content: center; }
+        .gap-8 { gap: 8px; }
+        .gap-12 { gap: 12px; }
+        .gap-16 { gap: 16px; }
+        .flex-wrap { flex-wrap: wrap; }
+        .w-full { width: 100%; }
+
+        /* ===== Loading ===== */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border-color);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 99999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        /* ===== Ad Display ===== */
+        .ad-container {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin: 16px 0;
+            border: 2px dashed var(--border-color);
+            text-align: center;
+            position: relative;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .ad-container:hover {
+            border-color: var(--primary);
+        }
+
+        .ad-container .ad-timer {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: var(--danger);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .ad-container .ad-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .ad-container .ad-description {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .ad-container .ad-cta {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 8px 24px;
+            background: var(--primary);
+            color: white;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .dev-tab {
+            display: none;
+        }
+        .dev-tab:first-of-type {
+            display: block;
+        }
+
+        /* ===== Profit Ads Grid ===== */
+        .profit-icon-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .profit-icon-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow);
+        }
+
+        .profit-icon-card i {
+            font-size: 32px;
+            color: var(--warning);
+        }
+
+        .profit-icon-card h4 {
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== Loading ===== -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- ===== Maintenance ===== -->
+    <div class="maintenance-overlay" id="maintenanceOverlay">
+        <i class="fas fa-tools"></i>
+        <h1 data-i18n="maintenance">جاري الصيانة</h1>
+        <p data-i18n="maintenance_message">التطبيق تحت الصيانة حالياً، نعتذر عن الإزعاج.</p>
+    </div>
+
+    <!-- ===== Profit Bar ===== -->
+    <div class="profit-bar" id="profitBar">
+        <div class="profit-info">
+            <span data-i18n="balance">💰 الرصيد:</span>
+            <span class="amount" id="profitBalance">$0.00</span>
+            <span>|</span>
+            <span data-i18n="ads_count">📊 عدد الإعلانات: <strong id="profitAdsCount">0</strong></span>
+        </div>
+        <div class="profit-actions">
+            <button class="btn btn-success btn-sm" onclick="withdrawProfit()">
+                <i class="fas fa-hand-holding-usd"></i> <span data-i18n="withdraw">سحب الرصيد</span>
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="watchProfitAd()">
+                <i class="fas fa-play"></i> <span data-i18n="watch_ad">مشاهدة إعلان</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== Auth ===== -->
+    <div id="authContainer" class="auth-container">
+        <div class="auth-box">
+            <div class="logo">
+                <i class="fas fa-feather-alt"></i>
+                <h1 data-i18n="app_name">QuickWriter AI</h1>
+                <p data-i18n="app_description">منصة إنشاء المحتوى بالذكاء الاصطناعي</p>
+            </div>
+            <div id="authForm">
+                <div class="form-group">
+                    <label data-i18n="username">👤 اسم المستخدم</label>
+                    <input type="text" id="authUsername" placeholder="أدخل اسم المستخدم" data-i18n-placeholder="username_placeholder">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="password">🔑 كلمة المرور</label>
+                    <input type="password" id="authPassword" placeholder="••••••••" data-i18n-placeholder="password_placeholder">
+                </div>
+                <button class="btn btn-primary" onclick="handleAuth()" id="authBtn" data-i18n="login">تسجيل الدخول</button>
+                <div class="auth-link">
+                    <span id="authToggleText" data-i18n="no_account">ليس لديك حساب؟</span>
+                    <a href="#" onclick="toggleAuthMode()" id="authToggleLink" data-i18n="create_account">إنشاء حساب</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== App ===== -->
+    <div id="appContainer" style="display:none;">
+
+        <!-- ===== Sidebar ===== -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <i class="fas fa-feather-alt"></i>
+                <h2 data-i18n="app_name_short">QuickWriter</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a class="active" data-page="home" onclick="showPage('home')"><i class="fas fa-home"></i> <span data-i18n="home">الرئيسية</span></a></li>
+                <li><a data-page="create" onclick="showPage('create')"><i class="fas fa-pen-fancy"></i> <span data-i18n="create">إنشاء محتوى</span></a></li>
+                <li><a data-page="summarize" onclick="showPage('summarize')"><i class="fas fa-compress-alt"></i> <span data-i18n="summarize">تلخيص النصوص</span></a></li>
+                <li><a data-page="plans" onclick="showPage('plans')"><i class="fas fa-crown"></i> <span data-i18n="plans">الباقات</span></a></li>
+                <li><a data-page="support" onclick="showPage('support')"><i class="fas fa-headset"></i> <span data-i18n="support">الدعم الفني</span></a></li>
+                <li><a data-page="settings" onclick="showPage('settings')"><i class="fas fa-cog"></i> <span data-i18n="settings">إعدادات الحساب</span></a></li>
+                <li><a data-page="profit" onclick="showPage('profit')"><i class="fas fa-coins"></i> <span data-i18n="profit">الربح من الإعلانات</span></a></li>
+                <li class="divider"></li>
+                <li id="supportPanelLink" style="display:none;"><a data-page="support-panel" onclick="showPage('support-panel')"><i class="fas fa-ticket-alt"></i> <span data-i18n="support_panel">لوحة الدعم</span></a></li>
+                <li id="devPanelLink" style="display:none;"><a data-page="dev-panel" onclick="showPage('dev-panel')"><i class="fas fa-shield-alt"></i> <span data-i18n="admin_panel">لوحة المطور</span></a></li>
+                <li class="divider"></li>
+                <li><a onclick="toggleTheme()"><i class="fas fa-moon" id="themeIcon"></i> <span id="themeText" data-i18n="dark_mode">الوضع المظلم</span></a></li>
+                <li><a onclick="toggleLanguage()"><i class="fas fa-globe"></i> <span id="langText" data-i18n="language">English</span></a></li>
+                <li><a class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span data-i18n="logout">تسجيل الخروج</span></a></li>
+            </ul>
+        </nav>
+
+        <!-- ===== Main ===== -->
+        <div class="main-content">
+
+            <!-- ===== Top Bar ===== -->
+            <div class="topbar">
+                <div class="topbar-left">
+                    <button class="sidebar-toggle" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 id="pageTitle" data-i18n="home">الرئيسية</h1>
+                    <span class="badge" id="userRoleBadge" data-i18n="user_role">مستخدم</span>
+                </div>
+                <div class="topbar-actions">
+                    <button class="notification-badge" onclick="toggleNotifications()" style="position:relative;">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge-count" id="notifCount">0</span>
+                        <div class="notifications-dropdown" id="notificationsDropdown">
+                            <div id="notificationsList">
+                                <div class="text-muted text-center" style="padding:20px;" data-i18n="no_data">لا توجد إشعارات</div>
+                            </div>
+                        </div>
+                    </button>
+                    <button class="theme-toggle" onclick="toggleTheme()">
+                        <i class="fas fa-moon" id="themeIconTop"></i>
+                    </button>
+                    <span id="userDisplayName" style="font-weight:600;"></span>
+                </div>
+            </div>
+
+            <!-- ===== PAGE: HOME ===== -->
+            <div class="page active" id="page-home">
+                <div class="grid-4" id="statsGrid">
+                    <div class="stat-card">
+                        <div class="stat-icon primary"><i class="fas fa-users"></i></div>
+                        <div class="stat-number" id="statUsers">0</div>
+                        <div class="stat-label" data-i18n="users">المستخدمين</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon success"><i class="fas fa-crown"></i></div>
+                        <div class="stat-number" id="statSubscriptions">0</div>
+                        <div class="stat-label" data-i18n="subscriptions">الاشتراكات</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon warning"><i class="fas fa-ad"></i></div>
+                        <div class="stat-number" id="statAds">0</div>
+                        <div class="stat-label" data-i18n="ads">الإعلانات</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon danger"><i class="fas fa-envelope"></i></div>
+                        <div class="stat-number" id="statMessages">0</div>
+                        <div class="stat-label" data-i18n="messages">الرسائل</div>
+                    </div>
+                </div>
+                <div class="card mt-24">
+                    <div class="card-header">
+                        <h3 data-i18n="welcome_message">🚀 مرحباً بك في QuickWriter AI</h3>
+                        <span class="text-muted" id="welcomeUser"></span>
+                    </div>
+                    <p data-i18n="app_description_full">منصتك الذكية لإنشاء المحتوى وتلخيص النصوص باستخدام أحدث تقنيات الذكاء الاصطناعي.</p>
+                    <div class="grid-2 mt-16">
+                        <button class="btn btn-primary" onclick="showPage('create')"><i class="fas fa-pen-fancy"></i> <span data-i18n="create">إنشاء محتوى</span></button>
+                        <button class="btn btn-success" onclick="showPage('summarize')"><i class="fas fa-compress-alt"></i> <span data-i18n="summarize">تلخيص نص</span></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== PAGE: CREATE ===== -->
+            <div class="page" id="page-create">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 data-i18n="create_content_title">✍️ إنشاء محتوى بالذكاء الاصطناعي</h3>
+                    </div>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label data-i18n="platform">المنصة</label>
+                            <select id="createPlatform">
+                                <option value="X">X (Twitter)</option>
+                                <option value="LinkedIn">LinkedIn</option>
+                                <option value="Facebook">Facebook</option>
+                                <option value="Instagram">Instagram</option>
+                                <option value="TikTok">TikTok</option>
+                                <option value="Snapchat">Snapchat</option>
+                                <option value="Pinterest">Pinterest</option>
+                                <option value="Reddit">Reddit</option>
+                                <option value="Threads">Threads</option>
+                                <option value="WhatsApp">WhatsApp</option>
+                                <option value="Telegram">Telegram</option>
+                                <option value="Discord">Discord</option>
+                                <option value="Blogger">Blogger</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Substack">Substack</option>
+                                <option value="Newsletter">Newsletter</option>
+                                <option value="YouTube">YouTube</option>
+                                <option value="YouTube Shorts">YouTube Shorts</option>
+                                <option value="Vimeo">Vimeo</option>
+                                <option value="Professional Email">Professional Email</option>
+                                <option value="Press Release">Press Release</option>
+                                <option value="Product Description">Product Description</option>
+                                <option value="Sales Pitch">Sales Pitch</option>
+                                <option value="Portfolio">Portfolio</option>
+                                <option value="Podcast">Podcast</option>
+                                <option value="Webinar">Webinar</option>
+                                <option value="SlideShare">SlideShare</option>
+                                <option value="Quora">Quora</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label data-i18n="style">أسلوب الكتابة</label>
+                            <select id="createStyle">
+                                <option value="general" data-i18n="style_general">عام</option>
+                                <option value="professional" data-i18n="style_professional">احترافي</option>
+                                <option value="casual" data-i18n="style_casual">عفوي</option>
+                                <option value="educational" data-i18n="style_educational">تعليمي</option>
+                                <option value="motivational" data-i18n="style_motivational">تحفيزي</option>
+                                <option value="persuasive" data-i18n="style_persuasive">مقنع</option>
+                                <option value="emotional" data-i18n="style_emotional">عاطفي</option>
+                                <option value="funny" data-i18n="style_funny">مضحك</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="topic">الموضوع</label>
+                        <textarea id="createTopic" placeholder="اكتب موضوع المحتوى..." rows="4" data-i18n-placeholder="topic_placeholder"></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="generateContent()">
+                        <i class="fas fa-rocket"></i> <span data-i18n="generate">إنشاء المحتوى</span>
+                    </button>
+                    <div id="createResult" class="mt-16" style="display:none;background:var(--bg-hover);padding:16px;border-radius:12px;white-space:pre-wrap;"></div>
+                </div>
+            </div>
+
+            <!-- ===== PAGE: SUMMARIZE ===== -->
+            <div class="page" id="page-summarize">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 data-i18n="summarize_title">📄 تلخيص النصوص</h3>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="summarize_mode">نوع التلخيص</label>
+                        <select id="summarizeMode">
+                            <option value="short" data-i18n="summarize_short">ملخص قصير</option>
+                            <option value="medium" data-i18n="summarize_medium">ملخص متوسط</option>
+                            <option value="long" data-i18n="summarize_long">ملخص طويل</option>
+                            <option value="keypoints" data-i18n="summarize_keypoints">نقاط رئيسية</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="text">النص</label>
+                        <textarea id="summarizeText" placeholder="ألصق النص هنا..." rows="6" data-i18n-placeholder="text_placeholder"></textarea>
+                    </div>
+                    <button class="btn btn-success" onclick="summarizeText()">
+                        <i class="fas fa-compress-alt"></i> <span data-i18n="summarize">تلخيص</span>
+                    </button>
+                    <div id="summarizeResult" class="mt-16" style="display:none;background:var(--bg-hover);padding:16px;border-radius:12px;white-space:pre-wrap;"></div>
+                </div>
+            </div>
+
+            <!-- ===== PAGE: PLANS ===== -->
+            <div class="page" id="page-plans">
+                <h3 class="mb-16" data-i18n="plans_title">💳 باقات الاشتراك</h3>
+                <div class="grid-4" id="plansGrid">
+                    <div class="card text-center">
+                        <h4 data-i18n="plan_monthly">شهري</h4>
+                        <p style="font-size:28px;font-weight:800;">$2.50</p>
+                        <button class="btn btn-primary mt-16" onclick="subscribePlan('monthly')" data-i18n="subscribe">اشتراك</button>
+                    </div>
+                    <div class="card text-center">
+                        <h4 data-i18n="plan_quarterly">3 أشهر</h4>
+                        <p style="font-size:28px;font-weight:800;">$6.75</p>
+                        <button class="btn btn-primary mt-16" onclick="subscribePlan('quarterly')" data-i18n="subscribe">اشتراك</button>
+                    </div>
+                    <div class="card text-center">
+                        <h4 data-i18n="plan_semiannual">6 أشهر</h4>
+                        <p style="font-size:28px;font-weight:800;">$13.00</p>
+                        <button class="btn btn-primary mt-16" onclick="subscribePlan('semiannual')" data-i18n="subscribe">اشتراك</button>
+                    </div>
+                    <div class="card text-center">
+                        <h4 data-i18n="plan_annual">سنوي</h4>
+                        <p style="font-size:28px;font-weight:800;">$22.00</p>
+                        <button class="btn btn-primary mt-16" onclick="subscribePlan('annual')" data-i18n="subscribe">اشتراك</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== PAGE: SUPPORT ===== -->
+            <div class="page" id="page-support">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 data-i18n="support_title">💬 الدعم الفني</h3>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="subject">الموضوع</label>
+                        <input type="text" id="supportSubject" placeholder="موضوع الرسالة" data-i18n-placeholder="subject_placeholder">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="message">الرسالة</label>
+                        <textarea id="supportMessage" placeholder="اكتب مشكلتك..." rows="4" data-i18n-placeholder="message_placeholder"></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="sendSupportMessage()">
+                        <i class="fas fa-paper-plane"></i> <span data-i18n="send">إرسال</span>
+                    </button>
+                    <div id="supportChat" class="mt-16" style="max-height:400px;overflow-y:auto;border-top:1px solid var(--border-color);padding-top:16px;"></div>
+                </div>
+            </div>
+
+            <!-- ===== PAGE: SETTINGS ===== -->
+            <div class="page" id="page-settings">
+                <div class="card">
+                    <h3 data-i18n="settings_title">⚙️ إعدادات الحساب</h3>
+                    <div class="form-group">
+                        <label data-i18n="username">اسم المستخدم</label>
+                        <input type="text" id="settingsUsername">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="new_password">كلمة المرور الجديدة</label>
+                        <input type="password" id="settingsPassword" placeholder="اتركه فارغاً إذا لم ترد التغيير" data-i18n-placeholder="password_optional">
+                    </div>
+                    <button class="btn btn-primary" onclick="updateSettings()"><i class="fas fa-save"></i> <span data-i18n="save">حفظ التغييرات</span></button>
+                </div>
+            </div>
+
+            <!-- ===== PAGE: PROFIT ===== -->
+            <div class="page" id="page-profit">
+                <h3 class="mb-16" data-i18n="profit_title">💰 الربح من الإعلانات</h3>
+                <div class="grid-3" id="profitAdsGrid"></div>
+            </div>
+
+            <!-- ===== PAGE: SUPPORT PANEL ===== -->
+            <div class="page" id="page-support-panel">
+                <h3 class="mb-16" data-i18n="support_panel_title">🎫 لوحة الدعم الفني</h3>
+                <div class="card">
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr><th data-i18n="user">المستخدم</th><th data-i18n="subject">الموضوع</th><th data-i18n="message">الرسالة</th><th data-i18n="status">الحالة</th><th data-i18n="actions">إجراء</th></tr>
+                            </thead>
+                            <tbody id="supportTicketsBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card mt-16">
+                    <h4 data-i18n="broadcast_title">📢 إرسال رسالة جماعية</h4>
+                    <div class="form-group">
+                        <label data-i18n="message">الرسالة</label>
+                        <textarea id="broadcastMessage" rows="3" placeholder="اكتب الرسالة..." data-i18n-placeholder="broadcast_placeholder"></textarea>
+                    </div>
+                    <button class="btn btn-warning" onclick="sendBroadcast()"><i class="fas fa-bullhorn"></i> <span data-i18n="send_broadcast">إرسال للجميع</span></button>
+                </div>
+            </div>
+
+            <!-- ===== PAGE: DEV PANEL ===== -->
+            <div class="page" id="page-dev-panel">
+                <h3 class="mb-16" data-i18n="admin_panel_title">🛡️ لوحة المطور</h3>
+                <div class="flex gap-12 flex-wrap mb-16">
+                    <button class="btn btn-primary btn-sm" onclick="showDevTab('settings')" data-i18n="settings">⚙️ الإعدادات</button>
+                    <button class="btn btn-primary btn-sm" onclick="showDevTab('users')" data-i18n="users">👥 المستخدمين</button>
+                    <button class="btn btn-primary btn-sm" onclick="showDevTab('ads')" data-i18n="ads">📢 الإعلانات</button>
+                    <button class="btn btn-primary btn-sm" onclick="showDevTab('profit-config')" data-i18n="profit_settings">💰 إعدادات الربح</button>
+                    <button class="btn btn-primary btn-sm" onclick="showDevTab('api')" data-i18n="api_keys">🔑 API</button>
+                    <button class="btn btn-primary btn-sm" onclick="showDevTab('subscriptions')" data-i18n="subscriptions">💳 الاشتراكات</button>
+                </div>
+
+                <!-- Dev: Settings -->
+                <div id="dev-tab-settings" class="card dev-tab">
+                    <h4 data-i18n="app_settings">⚙️ إعدادات التطبيق</h4>
+                    <div class="form-group">
+                        <label data-i18n="app_name">اسم التطبيق</label>
+                        <input type="text" id="devAppName" value="QuickWriter AI">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="maintenance_status">حالة الصيانة</label>
+                        <select id="devMaintenance">
+                            <option value="false" data-i18n="active">🟢 نشط</option>
+                            <option value="true" data-i18n="maintenance">🔴 صيانة</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="active_model">النموذج النشط</label>
+                        <select id="devActiveModel">
+                            <option value="gemini">Gemini</option>
+                            <option value="chatgpt">ChatGPT</option>
+                            <option value="grok">Grok</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveDevSettings()"><i class="fas fa-save"></i> <span data-i18n="save">حفظ</span></button>
+                </div>
+
+                <!-- Dev: Users -->
+                <div id="dev-tab-users" class="card dev-tab" style="display:none;">
+                    <h4 data-i18n="users_manage">👥 إدارة المستخدمين</h4>
+                    <div class="form-group">
+                        <input type="text" id="devSearchUser" placeholder="بحث..." data-i18n-placeholder="search" oninput="searchUsers()">
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr><th data-i18n="user">المستخدم</th><th data-i18n="role">الدور</th><th data-i18n="status">الحالة</th><th data-i18n="actions">إجراءات</th></tr>
+                            </thead>
+                            <tbody id="devUsersBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Dev: Ads -->
+                <div id="dev-tab-ads" class="card dev-tab" style="display:none;">
+                    <h4 data-i18n="ads_manage">📢 إدارة الإعلانات</h4>
+                    <button class="btn btn-success mb-16" onclick="showAddAdModal()"><i class="fas fa-plus"></i> <span data-i18n="add_ad">إضافة إعلان</span></button>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr><th data-i18n="title">العنوان</th><th data-i18n="duration">المدة</th><th data-i18n="status">الحالة</th><th data-i18n="views">المشاهدات</th><th data-i18n="clicks">النقرات</th><th data-i18n="actions">إجراءات</th></tr>
+                            </thead>
+                            <tbody id="devAdsBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Dev: Profit Config -->
+                <div id="dev-tab-profit-config" class="card dev-tab" style="display:none;">
+                    <h4 data-i18n="profit_settings">💰 إعدادات الربح</h4>
+                    <div class="form-group">
+                        <label data-i18n="ad_duration">مدة الإعلان (ثانية)</label>
+                        <input type="number" id="profitAdDuration" value="10">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="ads_per_dollar">عدد الإعلانات لل $1</label>
+                        <input type="number" id="profitAdsPerDollar" value="20">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="ad_value">قيمة الإعلان ($)</label>
+                        <input type="number" id="profitAdValue" value="0.05" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="system_status">حالة النظام</label>
+                        <select id="profitSystemStatus">
+                            <option value="active" data-i18n="active">🟢 نشط</option>
+                            <option value="inactive" data-i18n="inactive">🔴 معطل</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveProfitConfig()"><i class="fas fa-save"></i> <span data-i18n="save">حفظ</span></button>
+                    <hr class="mt-16 mb-16">
+                    <h4 data-i18n="add_profit_icon">➕ إضافة أيقونة ربح</h4>
+                    <div class="form-group">
+                        <label data-i18n="icon_name">اسم الأيقونة</label>
+                        <input type="text" id="newProfitIconName" placeholder="مثل: عرض خاص" data-i18n-placeholder="icon_name_placeholder">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="ad_duration">مدة الإعلان (ثانية)</label>
+                        <input type="number" id="newProfitIconDuration" value="10">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="ads_per_dollar">عدد الإعلانات لل $1</label>
+                        <input type="number" id="newProfitIconAdsPerDollar" value="20">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="ad_value">قيمة الإعلان ($)</label>
+                        <input type="number" id="newProfitIconValue" value="0.05" step="0.01">
+                    </div>
+                    <button class="btn btn-success" onclick="addProfitIcon()"><i class="fas fa-plus"></i> <span data-i18n="add">إضافة</span></button>
+                    <hr class="mt-16 mb-16">
+                    <div id="profitIconsList"></div>
+                </div>
+
+                <!-- Dev: API -->
+                <div id="dev-tab-api" class="card dev-tab" style="display:none;">
+                    <h4 data-i18n="api_keys_title">🔑 مفاتيح API</h4>
+                    <div class="form-group">
+                        <label>Gemini API</label>
+                        <input type="password" id="devGeminiKey" placeholder="أدخل مفتاح Gemini" data-i18n-placeholder="gemini_key_placeholder">
+                    </div>
+                    <div class="form-group">
+                        <label>ChatGPT API</label>
+                        <input type="password" id="devChatGPTKey" placeholder="أدخل مفتاح ChatGPT" data-i18n-placeholder="chatgpt_key_placeholder">
+                    </div>
+                    <div class="form-group">
+                        <label>Grok API</label>
+                        <input type="password" id="devGrokKey" placeholder="أدخل مفتاح Grok" data-i18n-placeholder="grok_key_placeholder">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="active_model">النموذج النشط</label>
+                        <select id="devApiActiveModel">
+                            <option value="gemini">Gemini</option>
+                            <option value="chatgpt">ChatGPT</option>
+                            <option value="grok">Grok</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveApiKeys()"><i class="fas fa-save"></i> <span data-i18n="save">حفظ</span></button>
+                </div>
+
+                <!-- Dev: Subscriptions -->
+                <div id="dev-tab-subscriptions" class="card dev-tab" style="display:none;">
+                    <h4 data-i18n="subscriptions_manage">💳 إدارة الاشتراكات</h4>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr><th data-i18n="user">المستخدم</th><th data-i18n="plan">الباقة</th><th data-i18n="status">الحالة</th><th data-i18n="actions">إجراء</th></tr>
+                            </thead>
+                            <tbody id="devSubscriptionsBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /main-content -->
+    </div><!-- /appContainer -->
+
+    <!-- ===== MODALS ===== -->
+
+    <!-- Add Ad -->
+    <div class="modal-overlay" id="addAdModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 data-i18n="add_ad_title">📢 إضافة إعلان</h2>
+                <button class="modal-close" onclick="closeModal('addAdModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label data-i18n="title">العنوان</label>
+                <input type="text" id="adTitle" placeholder="عنوان الإعلان" data-i18n-placeholder="ad_title_placeholder">
+            </div>
+            <div class="form-group">
+                <label data-i18n="description">الوصف</label>
+                <textarea id="adDescription" rows="3" placeholder="وصف الإعلان" data-i18n-placeholder="ad_description_placeholder"></textarea>
+            </div>
+            <div class="form-group">
+                <label data-i18n="link">الرابط</label>
+                <input type="url" id="adLink" placeholder="https://example.com">
+            </div>
+            <div class="form-group">
+                <label data-i18n="duration">المدة (ثانية)</label>
+                <input type="number" id="adDuration" value="5" min="1">
+            </div>
+            <div class="form-group">
+                <label data-i18n="status">الحالة</label>
+                <select id="adStatus">
+                    <option value="active" data-i18n="active">نشط</option>
+                    <option value="inactive" data-i18n="inactive">غير نشط</option>
+                </select>
+            </div>
+            <button class="btn btn-primary w-full" onclick="addAd()"><i class="fas fa-plus"></i> <span data-i18n="add">إضافة</span></button>
+        </div>
+    </div>
+
+    <!-- Edit Ad -->
+    <div class="modal-overlay" id="editAdModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 data-i18n="edit_ad_title">✏️ تعديل إعلان</h2>
+                <button class="modal-close" onclick="closeModal('editAdModal')">&times;</button>
+            </div>
+            <input type="hidden" id="editAdId">
+            <div class="form-group">
+                <label data-i18n="title">العنوان</label>
+                <input type="text" id="editAdTitle">
+            </div>
+            <div class="form-group">
+                <label data-i18n="description">الوصف</label>
+                <textarea id="editAdDescription" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label data-i18n="link">الرابط</label>
+                <input type="url" id="editAdLink">
+            </div>
+            <div class="form-group">
+                <label data-i18n="duration">المدة (ثانية)</label>
+                <input type="number" id="editAdDuration" min="1">
+            </div>
+            <div class="form-group">
+                <label data-i18n="status">الحالة</label>
+                <select id="editAdStatus">
+                    <option value="active" data-i18n="active">نشط</option>
+                    <option value="inactive" data-i18n="inactive">غير نشط</option>
+                </select>
+            </div>
+            <button class="btn btn-primary w-full" onclick="updateAd()"><i class="fas fa-save"></i> <span data-i18n="update">تحديث</span></button>
+        </div>
+    </div>
+
+    <!-- Ad Stats -->
+    <div class="modal-overlay" id="adStatsModal">
+        <div class="modal" style="max-width:800px;">
+            <div class="modal-header">
+                <h2 data-i18n="ad_stats_title">📊 إحصائيات الإعلان</h2>
+                <button class="modal-close" onclick="closeModal('adStatsModal')">&times;</button>
+            </div>
+            <div class="flex gap-12 flex-wrap mb-16">
+                <button class="btn btn-sm btn-primary" onclick="loadAdStats('day')" data-i18n="day">يوم</button>
+                <button class="btn btn-sm btn-primary" onclick="loadAdStats('week')" data-i18n="week">أسبوع</button>
+                <button class="btn btn-sm btn-primary" onclick="loadAdStats('month')" data-i18n="month">شهر</button>
+            </div>
+            <div id="adStatsContent"><div class="text-center text-muted" data-i18n="select_period">اختر فترة</div></div>
+        </div>
+    </div>
+
+    <!-- Profit Ad -->
+    <div class="modal-overlay" id="profitAdModal">
+        <div class="modal" style="max-width:500px;">
+            <div class="modal-header">
+                <h2 data-i18n="watch_ad_title">💰 مشاهدة إعلان</h2>
+                <button class="modal-close" onclick="closeModal('profitAdModal')">&times;</button>
+            </div>
+            <div id="profitAdContent" class="text-center">
+                <div id="profitAdDisplay" style="padding:20px;"><p data-i18n="ad_ready">سيبدأ الإعلان...</p></div>
+                <div id="profitAdTimer" style="font-size:48px;font-weight:800;color:var(--primary);margin:16px 0;">10</div>
+                <button class="btn btn-success" id="profitAdWatchBtn" onclick="startProfitAdWatch()"><i class="fas fa-play"></i> <span data-i18n="watch">مشاهدة</span></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- ===== JAVASCRIPT ===== -->
+    <!-- ========================================== -->
+    <script>
+        // ============================================
+        // CONFIGURATION - ضع روابطك هنا
+        // ============================================
+        const SUPABASE_URL = 'https://bvejncblufvuoslieksa.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ2ZWpuY2JsdWZ2dW9zbGlla3NhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM1OTIzNzAsImV4cCI6MjA5OTE2ODM3MH0.0m63pIoYewqBLG9P4OtWlZF2Gd5U30ICzvNfnqIKwKU';
+        const WORKER_URL = 'https://quickwriterai.studentshelps001.workers.dev';
+
+        // ============================================
+        // دعم 120+ لغة عالمية
+        // ============================================
+
+        // قائمة اللغات المدعومة (120+ لغة)
+        const SUPPORTED_LANGUAGES = {
+            'ar': 'العربية',
+            'en': 'English',
+            'fr': 'Français',
+            'es': 'Español',
+            'de': 'Deutsch',
+            'zh': '中文',
+            'ja': '日本語',
+            'ru': 'Русский',
+            'hi': 'हिन्दी',
+            'pt': 'Português',
+            'it': 'Italiano',
+            'ko': '한국어',
+            'nl': 'Nederlands',
+            'tr': 'Türkçe',
+            'fa': 'فارسی',
+            'ur': 'اردو',
+            'he': 'עברית',
+            'id': 'Bahasa Indonesia',
+            'ms': 'Bahasa Melayu',
+            'th': 'ไทย',
+            'vi': 'Tiếng Việt',
+            'pl': 'Polski',
+            'uk': 'Українська',
+            'ro': 'Română',
+            'hu': 'Magyar',
+            'cs': 'Čeština',
+            'sv': 'Svenska',
+            'da': 'Dansk',
+            'no': 'Norsk',
+            'fi': 'Suomi',
+            'el': 'Ελληνικά',
+            'bg': 'Български',
+            'hr': 'Hrvatski',
+            'sk': 'Slovenčina',
+            'sl': 'Slovenščina',
+            'lt': 'Lietuvių',
+            'lv': 'Latviešu',
+            'et': 'Eesti',
+            'is': 'Íslenska',
+            'ga': 'Gaeilge',
+            'cy': 'Cymraeg',
+            'eu': 'Euskara',
+            'ca': 'Català',
+            'gl': 'Galego',
+            'eo': 'Esperanto',
+            'mt': 'Malti',
+            'sq': 'Shqip',
+            'mk': 'Македонски',
+            'bs': 'Bosanski',
+            'sr': 'Српски',
+            'me': 'Crnogorski',
+            'hy': 'Հայերեն',
+            'ka': 'ქართული',
+            'az': 'Azərbaycanca',
+            'uz': 'Oʻzbekcha',
+            'tk': 'Türkmençe',
+            'ky': 'Кыргызча',
+            'mn': 'Монгол',
+            'ne': 'नेपाली',
+            'si': 'සිංහල',
+            'my': 'မြန်မာ',
+            'km': 'ខ្មែរ',
+            'lo': 'ລາວ',
+            'tl': 'Tagalog',
+            'ceb': 'Cebuano',
+            'ny': 'Chichewa',
+            'st': 'Sesotho',
+            'sw': 'Kiswahili',
+            'xh': 'IsiXhosa',
+            'zu': 'IsiZulu',
+            'af': 'Afrikaans',
+            'am': 'አማርኛ',
+            'yo': 'Yorùbá',
+            'ig': 'Igbo',
+            'ha': 'Hausa',
+            'sn': 'Shona',
+            'rw': 'Kinyarwanda',
+            'rn': 'Kirundi',
+            'ln': 'Lingala',
+            'ts': 'Xitsonga',
+            'ss': 'SiSwati',
+            've': 'Tshivenḓa',
+            'tn': 'Setswana',
+            'nr': 'isiNdebele',
+            'nso': 'Sepedi',
+            'tw': 'Twi',
+            'ee': 'Eʋegbe',
+            'fon': 'Fɔ̀ngbè',
+            'dag': 'Dagbani',
+            'ewe': 'Ewe',
+            'gaa': 'Ga',
+            'ak': 'Akan',
+            'bm': 'Bamanankan',
+            'ff': 'Fulfulde',
+            'wo': 'Wolof',
+            'so': 'Soomaali',
+            'om': 'Oromoo',
+            'ti': 'ትግርኛ',
+            'ny': 'Chichewa',
+            'mg': 'Malagasy',
+            'mt': 'Malti',
+            'mi': 'Māori',
+            'haw': 'Hawaiʻi',
+            'sm': 'Gagana Samoa',
+            'to': 'Lea Faka-Tonga',
+            'fj': 'Na Vosa Vakaviti',
+            'ty': 'Reo Tahiti',
+            'kg': 'Kikongo',
+            'lu': 'Tshiluba',
+            'ko': '한국어',
+            'km': 'ខ្មែរ',
+            'lo': 'ລາວ',
+            'my': 'မြန်မာ',
+            'mn': 'Монгол',
+            'ne': 'नेपाली',
+            'dv': 'ދިވެހި',
+            'ps': 'پښتو',
+            'sd': 'سنڌي',
+            'ku': 'Kurdî',
+            'ug': 'ئۇيغۇرچە',
+            'bo': 'བོད་སྐད་',
+            'dz': 'རྫོང་ཁ'
+        };
+
+        // ============================================
+        // ملفات الترجمة (كل النصوص في التطبيق)
+        // ============================================
+        const TRANSLATIONS = {};
+
+        // الترجمة العربية
+        TRANSLATIONS['ar'] = {
+            'app_name': 'QuickWriter AI',
+            'app_name_short': 'QuickWriter',
+            'app_description': 'منصة إنشاء المحتوى بالذكاء الاصطناعي',
+            'app_description_full': 'منصتك الذكية لإنشاء المحتوى وتلخيص النصوص باستخدام أحدث تقنيات الذكاء الاصطناعي.',
+            'home': 'الرئيسية',
+            'create': 'إنشاء محتوى',
+            'summarize': 'تلخيص النصوص',
+            'plans': 'الباقات',
+            'support': 'الدعم الفني',
+            'settings': 'إعدادات الحساب',
+            'profit': 'الربح من الإعلانات',
+            'logout': 'تسجيل الخروج',
+            'welcome': 'مرحباً بك',
+            'welcome_message': '🚀 مرحباً بك في QuickWriter AI',
+            'dashboard': 'لوحة التحكم',
+            'users': 'المستخدمين',
+            'subscriptions': 'الاشتراكات',
+            'ads': 'الإعلانات',
+            'messages': 'الرسائل',
+            'generate': 'إنشاء المحتوى',
+            'platform': 'المنصة',
+            'style': 'أسلوب الكتابة',
+            'style_general': 'عام',
+            'style_professional': 'احترافي',
+            'style_casual': 'عفوي',
+            'style_educational': 'تعليمي',
+            'style_motivational': 'تحفيزي',
+            'style_persuasive': 'مقنع',
+            'style_emotional': 'عاطفي',
+            'style_funny': 'مضحك',
+            'topic': 'الموضوع',
+            'send': 'إرسال',
+            'save': 'حفظ',
+            'delete': 'حذف',
+            'edit': 'تعديل',
+            'cancel': 'إلغاء',
+            'confirm': 'تأكيد',
+            'loading': 'جاري التحميل...',
+            'error': 'حدث خطأ',
+            'success': 'تم بنجاح!',
+            'username': 'اسم المستخدم',
+            'password': 'كلمة المرور',
+            'new_password': 'كلمة المرور الجديدة',
+            'login': 'تسجيل الدخول',
+            'register': 'إنشاء حساب',
+            'no_account': 'ليس لديك حساب؟',
+            'have_account': 'لديك حساب بالفعل؟',
+            'create_account': 'إنشاء حساب',
+            'login_account': 'تسجيل الدخول',
+            'dark_mode': 'الوضع المظلم',
+            'light_mode': 'الوضع الفاتح',
+            'language': 'اللغة',
+            'profile': 'الملف الشخصي',
+            'balance': 'الرصيد',
+            'withdraw': 'سحب الرصيد',
+            'watch_ad': 'مشاهدة إعلان',
+            'subscription': 'الاشتراك',
+            'plan_monthly': 'شهري',
+            'plan_quarterly': '3 أشهر',
+            'plan_semiannual': '6 أشهر',
+            'plan_annual': 'سنوي',
+            'subscribe': 'اشتراك',
+            'support_panel': 'لوحة الدعم',
+            'admin_panel': 'لوحة المطور',
+            'support_panel_title': '🎫 لوحة الدعم الفني',
+            'admin_panel_title': '🛡️ لوحة المطور',
+            'settings_title': '⚙️ إعدادات الحساب',
+            'plans_title': '💳 باقات الاشتراك',
+            'profit_title': '💰 الربح من الإعلانات',
+            'summarize_title': '📄 تلخيص النصوص',
+            'create_content_title': '✍️ إنشاء محتوى بالذكاء الاصطناعي',
+            'support_title': '💬 الدعم الفني',
+            'send_broadcast': 'إرسال للجميع',
+            'broadcast_title': '📢 إرسال رسالة جماعية',
+            'subject': 'الموضوع',
+            'message': 'الرسالة',
+            'reply': 'الرد',
+            'close': 'إغلاق',
+            'open': 'مفتوح',
+            'status': 'الحالة',
+            'active': 'نشط',
+            'inactive': 'غير نشط',
+            'pending': 'قيد المراجعة',
+            'user': 'المستخدم',
+            'role': 'الدور',
+            'user_role': 'مستخدم',
+            'support_role': 'دعم فني',
+            'dev_role': 'مطور',
+            'actions': 'إجراءات',
+            'settings_saved': 'تم حفظ الإعدادات!',
+            'ad_added': 'تم إضافة الإعلان!',
+            'ad_deleted': 'تم حذف الإعلان!',
+            'ad_updated': 'تم تحديث الإعلان!',
+            'profit_earned': 'تم إضافة ${{amount}} إلى رصيدك!',
+            'profit_withdrawn': 'تم سحب ${{amount}} بنجاح!',
+            'subscription_requested': 'تم طلب الاشتراك بنجاح!',
+            'message_sent': 'تم إرسال الرسالة!',
+            'broadcast_sent': 'تم إرسال الرسالة لـ {{count}} مستخدم!',
+            'maintenance': 'جاري الصيانة',
+            'maintenance_message': 'التطبيق تحت الصيانة حالياً، نعتذر عن الإزعاج.',
+            'maintenance_status': 'حالة الصيانة',
+            'coming_soon': 'قريباً',
+            'view_all': 'عرض الكل',
+            'no_data': 'لا توجد بيانات',
+            'search': 'بحث...',
+            'filter': 'تصفية',
+            'sort': 'ترتيب',
+            'export': 'تصدير',
+            'import': 'استيراد',
+            'backup': 'نسخ احتياطي',
+            'restore': 'استعادة',
+            'total': 'الإجمالي',
+            'today': 'اليوم',
+            'week': 'هذا الأسبوع',
+            'month': 'هذا الشهر',
+            'year': 'هذه السنة',
+            'views': 'المشاهدات',
+            'clicks': 'النقرات',
+            'duration': 'المدة',
+            'link': 'الرابط',
+            'title': 'العنوان',
+            'description': 'الوصف',
+            'created_at': 'تاريخ الإنشاء',
+            'updated_at': 'تاريخ التحديث',
+            'expires_at': 'تاريخ الانتهاء',
+            'plan': 'الباقة',
+            'price': 'السعر',
+            'promote': 'ترقية',
+            'demote': 'خفض',
+            'ban': 'حظر',
+            'unban': 'إلغاء الحظر',
+            'copy': 'نسخ',
+            'copied': 'تم النسخ!',
+            'refresh': 'تحديث',
+            'help': 'مساعدة',
+            'about': 'حول التطبيق',
+            'version': 'الإصدار 1.0',
+            'contact': 'اتصل بنا',
+            'privacy': 'سياسة الخصوصية',
+            'terms': 'شروط الخدمة',
+            'cookie': 'سياسة ملفات الارتباط',
+            'app_settings': '⚙️ إعدادات التطبيق',
+            'active_model': 'النموذج النشط',
+            'users_manage': '👥 إدارة المستخدمين',
+            'ads_manage': '📢 إدارة الإعلانات',
+            'profit_settings': '💰 إعدادات الربح',
+            'api_keys': '🔑 مفاتيح API',
+            'api_keys_title': '🔑 مفاتيح API',
+            'subscriptions_manage': '💳 إدارة الاشتراكات',
+            'add_ad': 'إضافة إعلان',
+            'add_ad_title': '📢 إضافة إعلان',
+            'edit_ad_title': '✏️ تعديل إعلان',
+            'ad_stats_title': '📊 إحصائيات الإعلان',
+            'watch_ad_title': '💰 مشاهدة إعلان',
+            'update': 'تحديث',
+            'add': 'إضافة',
+            'select_period': 'اختر فترة',
+            'ad_ready': 'سيبدأ الإعلان...',
+            'watch': 'مشاهدة',
+            'ad_duration': 'مدة الإعلان (ثانية)',
+            'ads_per_dollar': 'عدد الإعلانات لل $1',
+            'ad_value': 'قيمة الإعلان ($)',
+            'system_status': 'حالة النظام',
+            'add_profit_icon': '➕ إضافة أيقونة ربح',
+            'icon_name': 'اسم الأيقونة',
+            'settings': 'الإعدادات'
+        };
+
+        // الترجمة الإنجليزية
+        TRANSLATIONS['en'] = {
+            'app_name': 'QuickWriter AI',
+            'app_name_short': 'QuickWriter',
+            'app_description': 'AI-Powered Content Creation Platform',
+            'app_description_full': 'Your smart platform for creating content and summarizing texts using the latest AI technologies.',
+            'home': 'Home',
+            'create': 'Create Content',
+            'summarize': 'Summarize',
+            'plans': 'Plans',
+            'support': 'Support',
+            'settings': 'Settings',
+            'profit': 'Earn from Ads',
+            'logout': 'Logout',
+            'welcome': 'Welcome',
+            'welcome_message': '🚀 Welcome to QuickWriter AI',
+            'dashboard': 'Dashboard',
+            'users': 'Users',
+            'subscriptions': 'Subscriptions',
+            'ads': 'Ads',
+            'messages': 'Messages',
+            'generate': 'Generate Content',
+            'platform': 'Platform',
+            'style': 'Writing Style',
+            'style_general': 'General',
+            'style_professional': 'Professional',
+            'style_casual': 'Casual',
+            'style_educational': 'Educational',
+            'style_motivational': 'Motivational',
+            'style_persuasive': 'Persuasive',
+            'style_emotional': 'Emotional',
+            'style_funny': 'Funny',
+            'topic': 'Topic',
+            'send': 'Send',
+            'save': 'Save',
+            'delete': 'Delete',
+            'edit': 'Edit',
+            'cancel': 'Cancel',
+            'confirm': 'Confirm',
+            'loading': 'Loading...',
+            'error': 'Error',
+            'success': 'Success!',
+            'username': 'Username',
+            'password': 'Password',
+            'new_password': 'New Password',
+            'login': 'Login',
+            'register': 'Register',
+            'no_account': "Don't have an account?",
+            'have_account': 'Already have an account?',
+            'create_account': 'Create Account',
+            'login_account': 'Login',
+            'dark_mode': 'Dark Mode',
+            'light_mode': 'Light Mode',
+            'language': 'Language',
+            'profile': 'Profile',
+            'balance': 'Balance',
+            'withdraw': 'Withdraw',
+            'watch_ad': 'Watch Ad',
+            'subscription': 'Subscription',
+            'plan_monthly': 'Monthly',
+            'plan_quarterly': '3 Months',
+            'plan_semiannual': '6 Months',
+            'plan_annual': 'Annual',
+            'subscribe': 'Subscribe',
+            'support_panel': 'Support Panel',
+            'admin_panel': 'Developer Panel',
+            'support_panel_title': '🎫 Support Panel',
+            'admin_panel_title': '🛡️ Developer Panel',
+            'settings_title': '⚙️ Account Settings',
+            'plans_title': '💳 Subscription Plans',
+            'profit_title': '💰 Earn from Ads',
+            'summarize_title': '📄 Text Summarization',
+            'create_content_title': '✍️ AI Content Creation',
+            'support_title': '💬 Support',
+            'send_broadcast': 'Send to All',
+            'broadcast_title': '📢 Send Broadcast Message',
+            'subject': 'Subject',
+            'message': 'Message',
+            'reply': 'Reply',
+            'close': 'Close',
+            'open': 'Open',
+            'status': 'Status',
+            'active': 'Active',
+            'inactive': 'Inactive',
+            'pending': 'Pending',
+            'user': 'User',
+            'role': 'Role',
+            'user_role': 'User',
+            'support_role': 'Support',
+            'dev_role': 'Developer',
+            'actions': 'Actions',
+            'settings_saved': 'Settings saved!',
+            'ad_added': 'Ad added!',
+            'ad_deleted': 'Ad deleted!',
+            'ad_updated': 'Ad updated!',
+            'profit_earned': 'Added ${{amount}} to your balance!',
+            'profit_withdrawn': 'Withdrew ${{amount}} successfully!',
+            'subscription_requested': 'Subscription requested!',
+            'message_sent': 'Message sent!',
+            'broadcast_sent': 'Message sent to {{count}} users!',
+            'maintenance': 'Under Maintenance',
+            'maintenance_message': 'The app is currently under maintenance. Sorry for the inconvenience.',
+            'maintenance_status': 'Maintenance Status',
+            'coming_soon': 'Coming Soon',
+            'view_all': 'View All',
+            'no_data': 'No data',
+            'search': 'Search...',
+            'filter': 'Filter',
+            'sort': 'Sort',
+            'export': 'Export',
+            'import': 'Import',
+            'backup': 'Backup',
+            'restore': 'Restore',
+            'total': 'Total',
+            'today': 'Today',
+            'week': 'This Week',
+            'month': 'This Month',
+            'year': 'This Year',
+            'views': 'Views',
+            'clicks': 'Clicks',
+            'duration': 'Duration',
+            'link': 'Link',
+            'title': 'Title',
+            'description': 'Description',
+            'created_at': 'Created At',
+            'updated_at': 'Updated At',
+            'expires_at': 'Expires At',
+            'plan': 'Plan',
+            'price': 'Price',
+            'promote': 'Promote',
+            'demote': 'Demote',
+            'ban': 'Ban',
+            'unban': 'Unban',
+            'copy': 'Copy',
+            'copied': 'Copied!',
+            'refresh': 'Refresh',
+            'help': 'Help',
+            'about': 'About',
+            'version': 'Version 1.0',
+            'contact': 'Contact Us',
+            'privacy': 'Privacy Policy',
+            'terms': 'Terms of Service',
+            'cookie': 'Cookie Policy',
+            'app_settings': '⚙️ App Settings',
+            'active_model': 'Active Model',
+            'users_manage': '👥 User Management',
+            'ads_manage': '📢 Ad Management',
+            'profit_settings': '💰 Profit Settings',
+            'api_keys': '🔑 API Keys',
+            'api_keys_title': '🔑 API Keys',
+            'subscriptions_manage': '💳 Subscription Management',
+            'add_ad': 'Add Ad',
+            'add_ad_title': '📢 Add Ad',
+            'edit_ad_title': '✏️ Edit Ad',
+            'ad_stats_title': '📊 Ad Statistics',
+            'watch_ad_title': '💰 Watch Ad',
+            'update': 'Update',
+            'add': 'Add',
+            'select_period': 'Select Period',
+            'ad_ready': 'Ad starting...',
+            'watch': 'Watch',
+            'ad_duration': 'Ad Duration (seconds)',
+            'ads_per_dollar': 'Ads per $1',
+            'ad_value': 'Ad Value ($)',
+            'system_status': 'System Status',
+            'add_profit_icon': '➕ Add Profit Icon',
+            'icon_name': 'Icon Name',
+            'settings': 'Settings'
+        };
+
+        // الترجمة الفرنسية
+        TRANSLATIONS['fr'] = {
+            'app_name': 'QuickWriter AI',
+            'app_name_short': 'QuickWriter',
+            'app_description': 'Plateforme de création de contenu IA',
+            'app_description_full': 'Votre plateforme intelligente pour créer du contenu et résumer des textes avec les dernières technologies IA.',
+            'home': 'Accueil',
+            'create': 'Créer du contenu',
+            'summarize': 'Résumer',
+            'plans': 'Forfaits',
+            'support': 'Support',
+            'settings': 'Paramètres',
+            'profit': 'Gagner avec les pubs',
+            'logout': 'Déconnexion',
+            'welcome': 'Bienvenue',
+            'welcome_message': '🚀 Bienvenue sur QuickWriter AI',
+            'dashboard': 'Tableau de bord',
+            'users': 'Utilisateurs',
+            'subscriptions': 'Abonnements',
+            'ads': 'Annonces',
+            'messages': 'Messages',
+            'generate': 'Générer du contenu',
+            'platform': 'Plateforme',
+            'style': "Style d'écriture",
+            'style_general': 'Général',
+            'style_professional': 'Professionnel',
+            'style_casual': 'Décontracté',
+            'style_educational': 'Éducatif',
+            'style_motivational': 'Motivant',
+            'style_persuasive': 'Persuasif',
+            'style_emotional': 'Émotionnel',
+            'style_funny': 'Drôle',
+            'topic': 'Sujet',
+            'send': 'Envoyer',
+            'save': 'Enregistrer',
+            'delete': 'Supprimer',
+            'edit': 'Modifier',
+            'cancel': 'Annuler',
+            'confirm': 'Confirmer',
+            'loading': 'Chargement...',
+            'error': 'Erreur',
+            'success': 'Succès!',
+            'username': "Nom d'utilisateur",
+            'password': 'Mot de passe',
+            'new_password': 'Nouveau mot de passe',
+            'login': 'Connexion',
+            'register': "S'inscrire",
+            'no_account': "Vous n'avez pas de compte?",
+            'have_account': 'Déjà un compte?',
+            'create_account': 'Créer un compte',
+            'login_account': 'Se connecter',
+            'dark_mode': 'Mode sombre',
+            'light_mode': 'Mode clair',
+            'language': 'Langue',
+            'profile': 'Profil',
+            'balance': 'Solde',
+            'withdraw': 'Retirer',
+            'watch_ad': 'Regarder une pub',
+            'subscription': 'Abonnement',
+            'plan_monthly': 'Mensuel',
+            'plan_quarterly': '3 mois',
+            'plan_semiannual': '6 mois',
+            'plan_annual': 'Annuel',
+            'subscribe': "S'abonner",
+            'support_panel': "Panneau d'assistance",
+            'admin_panel': 'Panneau développeur',
+            'support_panel_title': "🎫 Panneau d'assistance",
+            'admin_panel_title': '🛡️ Panneau développeur',
+            'settings_title': '⚙️ Paramètres du compte',
+            'plans_title': '💳 Forfaits d\'abonnement',
+            'profit_title': '💰 Gagner avec les pubs',
+            'summarize_title': '📄 Résumé de texte',
+            'create_content_title': '✍️ Création de contenu IA',
+            'support_title': '💬 Support',
+            'send_broadcast': 'Envoyer à tous',
+            'broadcast_title': '📢 Envoyer un message groupé',
+            'subject': 'Sujet',
+            'message': 'Message',
+            'reply': 'Répondre',
+            'close': 'Fermer',
+            'open': 'Ouvert',
+            'status': 'Statut',
+            'active': 'Actif',
+            'inactive': 'Inactif',
+            'pending': 'En attente',
+            'user': 'Utilisateur',
+            'role': 'Rôle',
+            'user_role': 'Utilisateur',
+            'support_role': 'Support',
+            'dev_role': 'Développeur',
+            'actions': 'Actions',
+            'settings_saved': 'Paramètres enregistrés!',
+            'ad_added': 'Annonce ajoutée!',
+            'ad_deleted': 'Annonce supprimée!',
+            'ad_updated': 'Annonce mise à jour!',
+            'profit_earned': '${{amount}} ajouté à votre solde!',
+            'profit_withdrawn': 'Retrait de ${{amount}} réussi!',
+            'subscription_requested': "Demande d'abonnement envoyée!",
+            'message_sent': 'Message envoyé!',
+            'broadcast_sent': 'Message envoyé à {{count}} utilisateurs!',
+            'maintenance': 'En maintenance',
+            'maintenance_message': "L'application est actuellement en maintenance. Désolé pour le dérangement.",
+            'maintenance_status': 'État de la maintenance',
+            'coming_soon': 'Bientôt',
+            'view_all': 'Voir tout',
+            'no_data': 'Pas de données',
+            'search': 'Rechercher...',
+            'filter': 'Filtrer',
+            'sort': 'Trier',
+            'export': 'Exporter',
+            'import': 'Importer',
+            'backup': 'Sauvegarder',
+            'restore': 'Restaurer',
+            'total': 'Total',
+            'today': "Aujourd'hui",
+            'week': 'Cette semaine',
+            'month': 'Ce mois',
+            'year': 'Cette année',
+            'views': 'Vues',
+            'clicks': 'Clics',
+            'duration': 'Durée',
+            'link': 'Lien',
+            'title': 'Titre',
+            'description': 'Description',
+            'created_at': 'Créé le',
+            'updated_at': 'Mis à jour le',
+            'expires_at': 'Expire le',
+            'plan': 'Forfait',
+            'price': 'Prix',
+            'promote': 'Promouvoir',
+            'demote': 'Rétrograder',
+            'ban': 'Bannir',
+            'unban': 'Débannir',
+            'copy': 'Copier',
+            'copied': 'Copié!',
+            'refresh': 'Rafraîchir',
+            'help': 'Aide',
+            'about': 'À propos',
+            'version': 'Version 1.0',
+            'contact': 'Nous contacter',
+            'privacy': 'Politique de confidentialité',
+            'terms': "Conditions d'utilisation",
+            'cookie': 'Politique des cookies',
+            'app_settings': '⚙️ Paramètres de l\'application',
+            'active_model': 'Modèle actif',
+            'users_manage': '👥 Gestion des utilisateurs',
+            'ads_manage': '📢 Gestion des annonces',
+            'profit_settings': '💰 Paramètres de gain',
+            'api_keys': '🔑 Clés API',
+            'api_keys_title': '🔑 Clés API',
+            'subscriptions_manage': '💳 Gestion des abonnements',
+            'add_ad': 'Ajouter une annonce',
+            'add_ad_title': '📢 Ajouter une annonce',
+            'edit_ad_title': '✏️ Modifier une annonce',
+            'ad_stats_title': '📊 Statistiques des annonces',
+            'watch_ad_title': '💰 Regarder une annonce',
+            'update': 'Mettre à jour',
+            'add': 'Ajouter',
+            'select_period': 'Choisir une période',
+            'ad_ready': "L'annonce va commencer...",
+            'watch': 'Regarder',
+            'ad_duration': 'Durée de l\'annonce (secondes)',
+            'ads_per_dollar': 'Annonces pour 1$',
+            'ad_value': 'Valeur de l\'annonce ($)',
+            'system_status': 'État du système',
+            'add_profit_icon': '➕ Ajouter une icône de gain',
+            'icon_name': 'Nom de l\'icône',
+            'settings': 'Paramètres'
+        };
+
+        // الترجمة الألمانية
+        TRANSLATIONS['de'] = {
+            'app_name': 'QuickWriter AI',
+            'app_name_short': 'QuickWriter',
+            'app_description': 'KI-gestützte Content-Erstellungsplattform',
+            'app_description_full': 'Ihre intelligente Plattform zur Erstellung von Inhalten und Zusammenfassung von Texten mit den neuesten KI-Technologien.',
+            'home': 'Startseite',
+            'create': 'Inhalt erstellen',
+            'summarize': 'Zusammenfassen',
+            'plans': 'Pläne',
+            'support': 'Support',
+            'settings': 'Einstellungen',
+            'profit': 'Mit Anzeigen verdienen',
+            'logout': 'Abmelden',
+            'welcome': 'Willkommen',
+            'welcome_message': '🚀 Willkommen bei QuickWriter AI',
+            'dashboard': 'Dashboard',
+            'users': 'Benutzer',
+            'subscriptions': 'Abonnements',
+            'ads': 'Anzeigen',
+            'messages': 'Nachrichten',
+            'generate': 'Inhalt generieren',
+            'platform': 'Plattform',
+            'style': 'Schreibstil',
+            'style_general': 'Allgemein',
+            'style_professional': 'Professionell',
+            'style_casual': 'Lässig',
+            'style_educational': 'Lehrreich',
+            'style_motivational': 'Motivierend',
+            'style_persuasive': 'Überzeugend',
+            'style_emotional': 'Emotional',
+            'style_funny': 'Lustig',
+            'topic': 'Thema',
+            'send': 'Senden',
+            'save': 'Speichern',
+            'delete': 'Löschen',
+            'edit': 'Bearbeiten',
+            'cancel': 'Abbrechen',
+            'confirm': 'Bestätigen',
+            'loading': 'Laden...',
+            'error': 'Fehler',
+            'success': 'Erfolg!',
+            'username': 'Benutzername',
+            'password': 'Passwort',
+            'new_password': 'Neues Passwort',
+            'login': 'Anmelden',
+            'register': 'Registrieren',
+            'no_account': 'Kein Konto?',
+            'have_account': 'Bereits ein Konto?',
+            'create_account': 'Konto erstellen',
+            'login_account': 'Anmelden',
+            'dark_mode': 'Dunkler Modus',
+            'light_mode': 'Heller Modus',
+            'language': 'Sprache',
+            'profile': 'Profil',
+            'balance': 'Guthaben',
+            'withdraw': 'Auszahlen',
+            'watch_ad': 'Anzeige ansehen',
+            'subscription': 'Abonnement',
+            'plan_monthly': 'Monatlich',
+            'plan_quarterly': '3 Monate',
+            'plan_semiannual': '6 Monate',
+            'plan_annual': 'Jährlich',
+            'subscribe': 'Abonnieren',
+            'support_panel': 'Support-Bereich',
+            'admin_panel': 'Entwickler-Bereich',
+            'support_panel_title': '🎫 Support-Bereich',
+            'admin_panel_title': '🛡️ Entwickler-Bereich',
+            'settings_title': '⚙️ Kontoeinstellungen',
+            'plans_title': '💳 Abonnement-Pläne',
+            'profit_title': '💰 Mit Anzeigen verdienen',
+            'summarize_title': '📄 Textzusammenfassung',
+            'create_content_title': '✍️ KI-Inhaltserstellung',
+            'support_title': '💬 Support',
+            'send_broadcast': 'An alle senden',
+            'broadcast_title': '📢 Rundnachricht senden',
+            'subject': 'Betreff',
+            'message': 'Nachricht',
+            'reply': 'Antworten',
+            'close': 'Schließen',
+            'open': 'Offen',
+            'status': 'Status',
+            'active': 'Aktiv',
+            'inactive': 'Inaktiv',
+            'pending': 'Ausstehend',
+            'user': 'Benutzer',
+            'role': 'Rolle',
+            'user_role': 'Benutzer',
+            'support_role': 'Support',
+            'dev_role': 'Entwickler',
+            'actions': 'Aktionen',
+            'settings_saved': 'Einstellungen gespeichert!',
+            'ad_added': 'Anzeige hinzugefügt!',
+            'ad_deleted': 'Anzeige gelöscht!',
+            'ad_updated': 'Anzeige aktualisiert!',
+            'profit_earned': '${{amount}} zu Ihrem Guthaben hinzugefügt!',
+            'profit_withdrawn': '${{amount}} erfolgreich ausgezahlt!',
+            'subscription_requested': 'Abonnement angefordert!',
+            'message_sent': 'Nachricht gesendet!',
+            'broadcast_sent': 'Nachricht an {{count}} Benutzer gesendet!',
+            'maintenance': 'Wartung',
+            'maintenance_message': 'Die App wird derzeit gewartet. Entschuldigung für die Unannehmlichkeiten.',
+            'maintenance_status': 'Wartungsstatus',
+            'coming_soon': 'Demnächst',
+            'view_all': 'Alle anzeigen',
+            'no_data': 'Keine Daten',
+            'search': 'Suchen...',
+            'filter': 'Filtern',
+            'sort': 'Sortieren',
+            'export': 'Exportieren',
+            'import': 'Importieren',
+            'backup': 'Backup',
+            'restore': 'Wiederherstellen',
+            'total': 'Gesamt',
+            'today': 'Heute',
+            'week': 'Diese Woche',
+            'month': 'Diesen Monat',
+            'year': 'Dieses Jahr',
+            'views': 'Aufrufe',
+            'clicks': 'Klicks',
+            'duration': 'Dauer',
+            'link': 'Link',
+            'title': 'Titel',
+            'description': 'Beschreibung',
+            'created_at': 'Erstellt am',
+            'updated_at': 'Aktualisiert am',
+            'expires_at': 'Läuft ab am',
+            'plan': 'Plan',
+            'price': 'Preis',
+            'promote': 'Befördern',
+            'demote': 'Herabstufen',
+            'ban': 'Sperren',
+            'unban': 'Entsperren',
+            'copy': 'Kopieren',
+            'copied': 'Kopiert!',
+            'refresh': 'Aktualisieren',
+            'help': 'Hilfe',
+            'about': 'Über',
+            'version': 'Version 1.0',
+            'contact': 'Kontakt',
+            'privacy': 'Datenschutz',
+            'terms': 'AGB',
+            'cookie': 'Cookie-Richtlinie',
+            'app_settings': '⚙️ App-Einstellungen',
+            'active_model': 'Aktives Modell',
+            'users_manage': '👥 Benutzerverwaltung',
+            'ads_manage': '📢 Anzeigenverwaltung',
+            'profit_settings': '💰 Gewinneinstellungen',
+            'api_keys': '🔑 API-Schlüssel',
+            'api_keys_title': '🔑 API-Schlüssel',
+            'subscriptions_manage': '💳 Abonnementverwaltung',
+            'add_ad': 'Anzeige hinzufügen',
+            'add_ad_title': '📢 Anzeige hinzufügen',
+            'edit_ad_title': '✏️ Anzeige bearbeiten',
+            'ad_stats_title': '📊 Anzeigenstatistiken',
+            'watch_ad_title': '💰 Anzeige ansehen',
+            'update': 'Aktualisieren',
+            'add': 'Hinzufügen',
+            'select_period': 'Zeitraum wählen',
+            'ad_ready': 'Anzeige startet...',
+            'watch': 'Ansehen',
+            'ad_duration': 'Anzeigendauer (Sekunden)',
+            'ads_per_dollar': 'Anzeigen pro 1$',
+            'ad_value': 'Anzeigenwert ($)',
+            'system_status': 'Systemstatus',
+            'add_profit_icon': '➕ Gewinn-Icon hinzufügen',
+            'icon_name': 'Icon-Name',
+            'settings': 'Einstellungen'
+        };
+
+        // الترجمة الإسبانية
+        TRANSLATIONS['es'] = {
+            'app_name': 'QuickWriter AI',
+            'app_name_short': 'QuickWriter',
+            'app_description': 'Plataforma de creación de contenido con IA',
+            'app_description_full': 'Su plataforma inteligente para crear contenido y resumir textos con las últimas tecnologías de IA.',
+            'home': 'Inicio',
+            'create': 'Crear contenido',
+            'summarize': 'Resumir',
+            'plans': 'Planes',
+            'support': 'Soporte',
+            'settings': 'Ajustes',
+            'profit': 'Ganar con anuncios',
+            'logout': 'Cerrar sesión',
+            'welcome': 'Bienvenido',
+            'welcome_message': '🚀 Bienvenido a QuickWriter AI',
+            'dashboard': 'Panel',
+            'users': 'Usuarios',
+            'subscriptions': 'Suscripciones',
+            'ads': 'Anuncios',
+            'messages': 'Mensajes',
+            'generate': 'Generar contenido',
+            'platform': 'Plataforma',
+            'style': 'Estilo de escritura',
+            'style_general': 'General',
+            'style_professional': 'Profesional',
+            'style_casual': 'Casual',
+            'style_educational': 'Educativo',
+            'style_motivational': 'Motivacional',
+            'style_persuasive': 'Persuasivo',
+            'style_emotional': 'Emocional',
+            'style_funny': 'Divertido',
+            'topic': 'Tema',
+            'send': 'Enviar',
+            'save': 'Guardar',
+            'delete': 'Eliminar',
+            'edit': 'Editar',
+            'cancel': 'Cancelar',
+            'confirm': 'Confirmar',
+            'loading': 'Cargando...',
+            'error': 'Error',
+            'success': '¡Éxito!',
+            'username': 'Nombre de usuario',
+            'password': 'Contraseña',
+            'new_password': 'Nueva contraseña',
+            'login': 'Iniciar sesión',
+            'register': 'Registrarse',
+            'no_account': '¿No tienes cuenta?',
+            'have_account': '¿Ya tienes cuenta?',
+            'create_account': 'Crear cuenta',
+            'login_account': 'Iniciar sesión',
+            'dark_mode': 'Modo oscuro',
+            'light_mode': 'Modo claro',
+            'language': 'Idioma',
+            'profile': 'Perfil',
+            'balance': 'Saldo',
+            'withdraw': 'Retirar',
+            'watch_ad': 'Ver anuncio',
+            'subscription': 'Suscripción',
+            'plan_monthly': 'Mensual',
+            'plan_quarterly': '3 meses',
+            'plan_semiannual': '6 meses',
+            'plan_annual': 'Anual',
+            'subscribe': 'Suscribirse',
+            'support_panel': 'Panel de soporte',
+            'admin_panel': 'Panel de desarrollador',
+            'support_panel_title': '🎫 Panel de soporte',
+            'admin_panel_title': '🛡️ Panel de desarrollador',
+            'settings_title': '⚙️ Ajustes de cuenta',
+            'plans_title': '💳 Planes de suscripción',
+            'profit_title': '💰 Ganar con anuncios',
+            'summarize_title': '📄 Resumen de textos',
+            'create_content_title': '✍️ Creación de contenido con IA',
+            'support_title': '💬 Soporte',
+            'send_broadcast': 'Enviar a todos',
+            'broadcast_title': '📢 Enviar mensaje masivo',
+            'subject': 'Asunto',
+            'message': 'Mensaje',
+            'reply': 'Responder',
+            'close': 'Cerrar',
+            'open': 'Abierto',
+            'status': 'Estado',
+            'active': 'Activo',
+            'inactive': 'Inactivo',
+            'pending': 'Pendiente',
+            'user': 'Usuario',
+            'role': 'Rol',
+            'user_role': 'Usuario',
+            'support_role': 'Soporte',
+            'dev_role': 'Desarrollador',
+            'actions': 'Acciones',
+            'settings_saved': '¡Ajustes guardados!',
+            'ad_added': '¡Anuncio añadido!',
+            'ad_deleted': '¡Anuncio eliminado!',
+            'ad_updated': '¡Anuncio actualizado!',
+            'profit_earned': '¡${{amount}} añadido a tu saldo!',
+            'profit_withdrawn': '¡${{amount}} retirado con éxito!',
+            'subscription_requested': '¡Suscripción solicitada!',
+            'message_sent': '¡Mensaje enviado!',
+            'broadcast_sent': '¡Mensaje enviado a {{count}} usuarios!',
+            'maintenance': 'En mantenimiento',
+            'maintenance_message': 'La aplicación está actualmente en mantenimiento. Disculpe las molestias.',
+            'maintenance_status': 'Estado de mantenimiento',
+            'coming_soon': 'Próximamente',
+            'view_all': 'Ver todo',
+            'no_data': 'Sin datos',
+            'search': 'Buscar...',
+            'filter': 'Filtrar',
+            'sort': 'Ordenar',
+            'export': 'Exportar',
+            'import': 'Importar',
+            'backup': 'Copia de seguridad',
+            'restore': 'Restaurar',
+            'total': 'Total',
+            'today': 'Hoy',
+            'week': 'Esta semana',
+            'month': 'Este mes',
+            'year': 'Este año',
+            'views': 'Vistas',
+            'clicks': 'Clics',
+            'duration': 'Duración',
+            'link': 'Enlace',
+            'title': 'Título',
+            'description': 'Descripción',
+            'created_at': 'Creado el',
+            'updated_at': 'Actualizado el',
+            'expires_at': 'Expira el',
+            'plan': 'Plan',
+            'price': 'Precio',
+            'promote': 'Promocionar',
+            'demote': 'Degradar',
+            'ban': 'Bloquear',
+            'unban': 'Desbloquear',
+            'copy': 'Copiar',
+            'copied': '¡Copiado!',
+            'refresh': 'Actualizar',
+            'help': 'Ayuda',
+            'about': 'Acerca de',
+            'version': 'Versión 1.0',
+            'contact': 'Contacto',
+            'privacy': 'Política de privacidad',
+            'terms': 'Términos de servicio',
+            'cookie': 'Política de cookies',
+            'app_settings': '⚙️ Ajustes de la aplicación',
+            'active_model': 'Modelo activo',
+            'users_manage': '👥 Gestión de usuarios',
+            'ads_manage': '📢 Gestión de anuncios',
+            'profit_settings': '💰 Configuración de ganancias',
+            'api_keys': '🔑 Claves API',
+            'api_keys_title': '🔑 Claves API',
+            'subscriptions_manage': '💳 Gestión de suscripciones',
+            'add_ad': 'Añadir anuncio',
+            'add_ad_title': '📢 Añadir anuncio',
+            'edit_ad_title': '✏️ Editar anuncio',
+            'ad_stats_title': '📊 Estadísticas de anuncios',
+            'watch_ad_title': '💰 Ver anuncio',
+            'update': 'Actualizar',
+            'add': 'Añadir',
+            'select_period': 'Seleccionar período',
+            'ad_ready': 'El anuncio comenzará...',
+            'watch': 'Ver',
+            'ad_duration': 'Duración del anuncio (segundos)',
+            'ads_per_dollar': 'Anuncios por 1$',
+            'ad_value': 'Valor del anuncio ($)',
+            'system_status': 'Estado del sistema',
+            'add_profit_icon': '➕ Añadir icono de ganancia',
+            'icon_name': 'Nombre del icono',
+            'settings': 'Ajustes'
+        };
+
+        // ============================================
+        // نظام الترجمة
+        // ============================================
+        let currentLanguage = localStorage.getItem('app_language') || 'ar';
+
+        function translate(key, params = {}) {
+            const lang = TRANSLATIONS[currentLanguage] || TRANSLATIONS['ar'];
+            let text = lang[key] || key;
+            for (const [k, v] of Object.entries(params)) {
+                text = text.replace(`{{${k}}}`, v);
+            }
+            return text;
+        }
+
+        function applyTranslations() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                const translated = translate(key);
+                if (translated && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) {
+                    if (el.getAttribute('data-i18n-placeholder')) {
+                        el.placeholder = translate(el.getAttribute('data-i18n-placeholder'));
+                    } else {
+                        el.placeholder = translated;
+                    }
+                } else if (translated) {
+                    el.textContent = translated;
+                }
+            });
+
+            // تحديث اتجاه الصفحة
+            const rtlLanguages = ['ar', 'fa', 'ur', 'he', 'ps', 'sd', 'ku', 'ug'];
+            document.documentElement.dir = rtlLanguages.includes(currentLanguage) ? 'rtl' : 'ltr';
+        }
+
+        function changeLanguage(lang) {
+            if (!SUPPORTED_LANGUAGES[lang]) {
+                lang = 'ar';
+            }
+            currentLanguage = lang;
+            localStorage.setItem('app_language', lang);
+            applyTranslations();
+
+            const selector = document.getElementById('languageSelector');
+            if (selector) selector.value = lang;
+
+            document.documentElement.lang = lang;
+            showToast(`✅ ${SUPPORTED_LANGUAGES[lang]}`);
+        }
+
+        // ============================================
+        // إنشاء قائمة اللغات في الواجهة
+        // ============================================
+        function createLanguageSelector() {
+            const container = document.createElement('div');
+            container.className = 'language-selector';
+
+            const select = document.createElement('select');
+            select.id = 'languageSelector';
+
+            // المجموعة الرئيسية (اللغات الأكثر استخداماً)
+            const mainGroup = ['ar', 'en', 'fr', 'es', 'de', 'zh', 'ja', 'ru', 'hi', 'pt'];
+            const optgroup1 = document.createElement('optgroup');
+            optgroup1.label = 'Main Languages';
+            mainGroup.forEach(code => {
+                const option = document.createElement('option');
+                option.value = code;
+                option.textContent = SUPPORTED_LANGUAGES[code];
+                if (code === currentLanguage) option.selected = true;
+                optgroup1.appendChild(option);
+            });
+            select.appendChild(optgroup1);
+
+            // باقي اللغات (100+)
+            const otherGroup = Object.keys(SUPPORTED_LANGUAGES).filter(l => !mainGroup.includes(l));
+            const optgroup2 = document.createElement('optgroup');
+            optgroup2.label = 'More Languages';
+            otherGroup.forEach(code => {
+                const option = document.createElement('option');
+                option.value = code;
+                option.textContent = SUPPORTED_LANGUAGES[code];
+                if (code === currentLanguage) option.selected = true;
+                optgroup2.appendChild(option);
+            });
+            select.appendChild(optgroup2);
+
+            select.onchange = function() {
+                changeLanguage(this.value);
+            };
+
+            container.appendChild(select);
+            const actions = document.querySelector('.topbar-actions');
+            if (actions) {
+                actions.insertBefore(container, actions.firstChild);
+            }
+        }
+
+        // ============================================
+        // STATE
+        // ============================================
+        let currentUser = null;
+        let currentUserRole = 'user';
+        let isDarkMode = false;
+        let isEnglish = false;
+        let authMode = 'login';
+        let isSubscribed = false;
+        let profitBalance = 0;
+        let profitAdsWatched = 0;
+        let currentAdStatsId = null;
+        let currentProfitIconId = null;
+
+        // ============================================
+        // HELPERS
+        // ============================================
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.add('active');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('active');
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+                padding: 16px 32px; border-radius: 12px;
+                background: ${type === 'success' ? '#2ECC71' : type === 'error' ? '#E74C3C' : '#F1C40F'};
+                color: ${type === 'warning' ? '#1A1A2E' : 'white'};
+                font-weight: 700; z-index: 99999; box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+                animation: fadeIn 0.3s ease; font-family: 'Cairo', sans-serif;
+                text-align: center; max-width: 90%;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        function formatDate(date) {
+            return new Date(date).toLocaleDateString(currentLanguage === 'ar' ? 'ar-EG' : 'en-US', {
+                year: 'numeric', month: 'short', day: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
+        }
+
+        function getToken() {
+            return localStorage.getItem('token') || '';
+        }
+
+        function getHeaders() {
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getToken()}`
+            };
+        }
+
+        // ============================================
+        // AUTH
+        // ============================================
+        function toggleAuthMode() {
+            authMode = authMode === 'login' ? 'register' : 'login';
+            document.getElementById('authBtn').textContent = authMode === 'login' ? translate('login') : translate('register');
+            document.getElementById('authToggleText').textContent = authMode === 'login' ? translate('no_account') : translate('have_account');
+            document.getElementById('authToggleLink').textContent = authMode === 'login' ? translate('create_account') : translate('login_account');
+        }
+
+        async function handleAuth() {
+            const username = document.getElementById('authUsername').value.trim();
+            const password = document.getElementById('authPassword').value.trim();
+
+            if (!username || !password) {
+                showToast(translate('error'), 'error');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                if (authMode === 'register') {
+                    const response = await fetch(`${WORKER_URL}/auth/register`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password })
+                    });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error || translate('error'));
+                    showToast(translate('success'));
+                    authMode = 'login';
+                    document.getElementById('authBtn').textContent = translate('login');
+                    document.getElementById('authToggleText').textContent = translate('no_account');
+                    document.getElementById('authToggleLink').textContent = translate('create_account');
+                    hideLoading();
+                    return;
+                }
+
+                const response = await fetch(`${WORKER_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || translate('error'));
+
+                currentUser = data.user;
+                currentUserRole = data.user.role || 'user';
+                localStorage.setItem('user', JSON.stringify(data.user));
+                localStorage.setItem('token', data.token);
+                await initializeApp();
+                hideLoading();
+
+            } catch (error) {
+                showToast(error.message, 'error');
+                hideLoading();
+            }
+        }
+
+        async function logout() {
+            localStorage.removeItem('user');
+            localStorage.removeItem('token');
+            currentUser = null;
+            document.getElementById('appContainer').style.display = 'none';
+            document.getElementById('authContainer').style.display = 'flex';
+            document.getElementById('profitBar').classList.remove('active');
+            showToast(translate('logout'));
+        }
+
+        // ============================================
+        // INIT
+        // ============================================
+        async function initializeApp() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user) {
+                document.getElementById('appContainer').style.display = 'none';
+                document.getElementById('authContainer').style.display = 'flex';
+                return;
+            }
+
+            currentUser = user;
+            currentUserRole = user.role || 'user';
+
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+
+            await loadUserData();
+            await loadStats();
+            await loadAds();
+            await loadSupportTickets();
+            await loadDevUsers();
+            await loadSubscriptions();
+            await loadProfitConfig();
+            await loadProfitIcons();
+            await loadNotifications();
+            await checkMaintenance();
+
+            document.getElementById('userDisplayName').textContent = currentUser?.username || 'User';
+            document.getElementById('userRoleBadge').textContent = currentUserRole === 'dev' ? translate('dev_role') :
+                currentUserRole === 'support' ? translate('support_role') : translate('user_role');
+
+            if (currentUserRole === 'support' || currentUserRole === 'dev') {
+                document.getElementById('supportPanelLink').style.display = 'block';
+            }
+            if (currentUserRole === 'dev') {
+                document.getElementById('devPanelLink').style.display = 'block';
+            }
+
+            if (currentUser?.subscription_status === 'active') {
+                isSubscribed = true;
+                document.getElementById('profitBar').classList.remove('active');
+            } else {
+                isSubscribed = false;
+                const profitStatus = await getProfitSystemStatus();
+                if (profitStatus === 'active') {
+                    document.getElementById('profitBar').classList.add('active');
+                }
+            }
+
+            await updateProfitBar();
+            showPage('home');
+            applyTranslations();
+        }
+
+        async function loadUserData() {
+            try {
+                const response = await fetch(`${WORKER_URL}/user/profile`, {
+                    headers: getHeaders()
+                });
+                const data = await response.json();
+                if (response.ok && data) {
+                    currentUser = { ...currentUser, ...data };
+                    document.getElementById('settingsUsername').value = data.username || '';
+                }
+            } catch (e) {
+                console.error('Error loading user data:', e);
+            }
+        }
+
+        // ============================================
+        // NAVIGATION
+        // ============================================
+        function showPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            const target = document.getElementById(`page-${page}`);
+            if (target) target.classList.add('active');
+
+            document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+            const link = document.querySelector(`.sidebar-menu a[data-page="${page}"]`);
+            if (link) link.classList.add('active');
+
+            const pageTitles = {
+                'home': 'home',
+                'create': 'create',
+                'summarize': 'summarize',
+                'plans': 'plans',
+                'support': 'support',
+                'settings': 'settings',
+                'profit': 'profit',
+                'support-panel': 'support_panel',
+                'dev-panel': 'admin_panel'
+            };
+            document.getElementById('pageTitle').textContent = translate(pageTitles[page] || 'home');
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        // ============================================
+        // THEME & LANGUAGE
+        // ============================================
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+            document.getElementById('themeIcon').className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+            document.getElementById('themeIconTop').className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+            document.getElementById('themeText').textContent = isDarkMode ? translate('light_mode') : translate('dark_mode');
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+        }
+
+        function toggleLanguage() {
+            const langs = Object.keys(SUPPORTED_LANGUAGES);
+            const currentIndex = langs.indexOf(currentLanguage);
+            const nextIndex = (currentIndex + 1) % langs.length;
+            changeLanguage(langs[nextIndex]);
+        }
+
+        // ============================================
+        // STATS
+        // ============================================
+        async function loadStats() {
+            try {
+                const response = await fetch(`${WORKER_URL}/admin/stats`, {
+                    headers: getHeaders()
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    document.getElementById('statUsers').textContent = data.users || 0;
+                    document.getElementById('statSubscriptions').textContent = data.subscriptions || 0;
+                    document.getElementById('statAds').textContent = data.ads || 0;
+                    document.getElementById('statMessages').textContent = data.messages || 0;
+                }
+            } catch (e) {
+                console.error('Error loading stats:', e);
+            }
+        }
+
+        // ============================================
+        // AI - GENERATE
+        // ============================================
+        async function generateContent() {
+            const platform = document.getElementById('createPlatform').value;
+            const style = document.getElementById('createStyle').value;
+            const topic = document.getElementById('createTopic').value.trim();
+
+            if (!topic) {
+                showToast(translate('topic_required'), 'error');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch(`${WORKER_URL}/ai/generate`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ platform, style, topic })
+                });
+                const data = await response.json();
+                hideLoading();
+
+                if (response.ok) {
+                    const result = document.getElementById('createResult');
+                    result.textContent = data.content || translate('no_content');
+                    result.style.display = 'block';
+                } else {
+                    showToast(data.error || translate('error'), 'error');
+                }
+            } catch (e) {
+                hideLoading();
+                showToast(translate('error'), 'error');
+            }
+        }
+
+        // ============================================
+        // AI - SUMMARIZE
+        // ============================================
+        async function summarizeText() {
+            const mode = document.getElementById('summarizeMode').value;
+            const text = document.getElementById('summarizeText').value.trim();
+
+            if (!text) {
+                showToast(translate('text_required'), 'error');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch(`${WORKER_URL}/ai/summarize`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ mode, text })
+                });
+                const data = await response.json();
+                hideLoading();
+
+                if (response.ok) {
+                    const result = document.getElementById('summarizeResult');
+                    result.textContent = data.summary || translate('no_summary');
+                    result.style.display = 'block';
+                } else {
+                    showToast(data.error || translate('error'), 'error');
+                }
+            } catch (e) {
+                hideLoading();
+                showToast(translate('error'), 'error');
+            }
+        }
+
+        // ============================================
+        // SUBSCRIPTIONS
+        // ============================================
+        async function subscribePlan(plan) {
+            const prices = { monthly: 2.50, quarterly: 6.75, semiannual: 13, annual: 22 };
+            const names = { monthly: translate('plan_monthly'), quarterly: translate('plan_quarterly'), semiannual: translate('plan_semiannual'), annual: translate('plan_annual') };
+
+            showLoading();
+            try {
+                const response = await fetch(`${WORKER_URL}/subscriptions/request`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ plan, price: prices[plan], plan_name: names[plan] })
+                });
+                const data = await response.json();
+                hideLoading();
+
+                if (response.ok) {
+                    showToast(translate('subscription_requested'));
+                } else {
+                    showToast(data.error || translate('error'), 'error');
+                }
+            } catch (e) {
+                hideLoading();
+                showToast(translate('error'), 'error');
+            }
+        }
+
+        // ============================================
+        // SUPPORT
+        // ============================================
+        async function sendSupportMessage() {
+            const subject = document.getElementById('supportSubject').value.trim();
+            const message = document.getElementById('supportMessage').value.trim();
+
+            if (!subject || !message) {
+                showToast(translate('fields_required'), 'error');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch(`${WORKER_URL}/support/send`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ subject, message })
+                });
+                const data = await response.json();
+                hideLoading();
+
+                if (response.ok) {
+                    showToast(translate('message_sent'));
+                    document.getElementById('supportSubject').value = '';
+                    document.getElementById('supportMessage').value = '';
+                    await loadSupportTickets();
+                } else {
+                    showToast(data.error || translate('error'), 'error');
+                }
+            } catch (e) {
+                hideLoading();
+                showToast(translate('error'), 'error');
+            }
+        }
+
+        async function loadSupportTickets() {
+            try {
+                const response = await fetch(`${WORKER_URL}/support/tickets`, {
+                    headers: getHeaders()
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    renderSupportTickets(data);
+                }
+            } catch (e) {
+                console.error('Error loading tickets:', e);
+            }
+        }
+
+        function renderSupportTickets(tickets) {
+            const container = document.getElementById('supportChat');
+            if (container && currentUserRole === 'user') {
+                container.innerHTML = tickets.map(t => `
+                    <div style="padding:12px;border-bottom:1px solid var(--border-color);">
+                        <strong>${t.subject}</strong>
+                        <p style="margin:4px 0;color:var(--text-secondary);">${t.message}</p>
+                        <small style="color:var(--text-secondary);">${formatDate(t.created_at)}</small>
+                        ${t.reply ? `<div style="background:var(--primary);padding:12px;border-radius:8px;margin-top:8px;color:white;"><strong>${translate('reply')}:</strong> ${t.reply}</div>` : ''}
+                    </div>
+                `).join('') || `<div class="text-muted text-center">${translate('no_data')}</div>`;
+                return;
+            }
+
+            const body = document.getElementById('supportTicketsBody');
+            if (body) {
+                body.innerHTML = tickets.map(t => `
+                    <tr>
+                        <td>${t.username || translate('unknown')}</td>
+                        <td>${t.subject}</td>
+                        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.message}</td>
+                        <td><span class="status-badge ${t.status === 'closed' ? 'inactive' : 'active'}">${t.status === 'closed' ? translate('closed') : translate('open')}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="replyToTicket('${t.id}')"><i class="fas fa-reply"></i></button>
+                            <button class="btn btn-sm btn-success" onclick="closeTicket('${t.id}')"><i class="fas fa-check"></i></button>
+                        </td>
+                    </tr>
+                `).join('') || `<tr><td colspan="5" class="text-center text-muted">${translate('no_data')}</td></tr>`;
+            }
+        }
+
+        async function replyToTicket(ticketId) {
+            const reply = prompt(translate('reply_prompt'));
+            if (!reply) return;
+
+            showLoading();
+            try {
+                const response = await fetch(`${WORKER_URL}/support/reply`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ ticket_id: ticketId, reply })
+                });
+                const data = await response.json();
+                hideLoading();
+                if (response.ok) {
+                    showToast(translate('reply_sent'));
+                    await loadSupportTickets();
+                } else {
+                    showToast(data.error || translate('error'), 'error');
+                }
+            } catch (e) {
+                hideLoading();
+                showToast(translate('error'), 'error');
+            }
+        }
+
+        async function closeTicket(ticketId) {
+            if (!confirm(translate('close_confirm'))) return;
+
+            showLoading();
+            try {
+                const response = await fetch(`${WORKER_URL}/support/close`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ ticket_id: ticketId })
+                });
+                const data = await response.json();
+                hideLoading();
+                if (response.ok) {
+                    showToast(translate('ticket_closed'));
+                    await loadSupportTickets();
+                } else {
+                    showToast(data.error || translate('error'), 'error');
+                }
+            } catch (e) {
+                hideLoading();
+                showToast(translate('error'), 'error');
+            }
+        }
+
+        async function sendBroadcast() {
+            const message = document.getElementById('broadcastMessage').value.trim();
+            if (!message) {
+                showToast(translate('message_required'), 'error');
+                return;
+            }
+            if (!confirm(translate('broadcast_confirm'))) return;
+
+            showLoading();
+            try {
+                const response = await fetch(`${WORKER_URL}/support/broadcast`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ message })
+                });
+                const data = await response.json();
+                hideLoading();
+                if (response.ok) {
+                    showToast(translate('broadcast_sent', { count: data.count || 0 }));
+                    document.getElementById('broadcastMessage').value = '';
+                } else {
+                    showToast(data.error || translate('error'), 'error');
+                }
+            } catch (e) {
+                hideLoading();
+                showToast(translate('error'), 'error');
+            }
+        }
+
+        // ============================================
+        // SETTINGS
+        // ============================================
+        async function updateSettings() {
+            const username = document.getElementById('settingsUsername').value.trim();
+            const password = document.getElementById('settingsPassword').value.trim();
+
+            if (!username) {
+                showToast(translate('username_required'), 'error');
+                return;
+            }
+
+            const updates = { username };
+            if (password) updates.password = password;
+
+            showLoading();
+            try {
+                const response = await fetch(`${WORKER_URL}/user/profile`, {
+                    method: 'PUT',
+                    headers: getHeaders(),
+                    body: JSON.stringify(updates)
+                });
+                const data = await response.json();
+                hideLoading();
+                if (response.ok) {
+                    showToast(translate('settings_saved'));
+                    currentUser.username = username;
+                    document.getElementById('userDisplayName').textContent = username;
+                    document.getElementById('settingsPassword').value = '';
+                } else {
+                    showToast(data.error || translate('error'), 'error');
+                }
+            } catch (e) {
+                hideLoading();
+                showToast(translate('error'), 'error');
+            }
+        }
+
+        // ============================================
+        // ADS
+        // ============================================
+        async function loadAds() {
+            try {
+                const response = await fetch(`${WORKER_URL}/ads/list`, {
+                    headers: getHeaders()
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    renderAds(data);
+                }
+            } catch (e) {
+                console.error('Error loading ads:', e);
+            }
+        }
+
+        function renderAds(ads) {
+            const body = document.getElementById('devAdsBody');
+            if (body) {
+                body.innerHTML = ads.map(ad => `
+                    <tr>
+                        <td>${ad.title}</td>
+                        <td>${ad.duration}s</td>
+                        <td><span class="status-badge ${ad.status === 'active' ? 'active' : 'inactive'}">${ad.status === 'active' ? translate('active') : translate('inactive')}</span></td>
+                        <td>${ad.views || 0}</td>
+                        <td>${ad.clicks || 0}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="viewAdStats('${ad.id}')"><i class="fas fa-chart-bar"></i></button>
+                            <button class="btn btn-sm btn-warning" onclick="editAd('${ad.id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteAd('${ad.id}')"><i class="fas fa-trash"></i></button>
+                            <button class="btn btn-sm ${ad.status === 'active' ? 'btn-danger' : 'btn-success'}" onclick="toggleAdStatus('${ad.id}')">
+                                <i class="fas ${ad.status === 'active' ? 'fa-pause' : 'fa-play'}"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('') || `<tr><td colspan="6" class="text-center text-muted">${translate('no_data')}</td></tr>`;
+            }
+        }
+
+        function showAddAdModal() {
+            document.getElementById('addAdModal').classList.add('active');
+        }
+
+        async function addAd() {
+            const title = document.getElementById('adTitle').value.trim();
+            const description = document.getElementById('adDescription').value.trim();
+            const link = document.getElementById('adLink').value.trim();
+            const duration = parseInt(document.getElementById('adDuration').value) || 5;
+            const status = document.getElementById('adStatus').value;
+
+            if (!title) {
+                showToast(translate('title_required'), 'error');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch(`${WORKER_URL}/ads/create`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ title, description, link, duration, status })
+                });
+                const data = await response.json();
+                hideLoading();
+                if (response.ok) {
+                    showToast(translate('ad_added'));
+                    closeModal('addAdModal');
+                    document.getElementById('adTitle').value = '';
+                    document.getElementById('adDescription').value = '';
+                    document.getElementById('adLink').value = '';
+                    await loadAds();
+                } else {
+                    showToast(data.error || translate('error'), 'error');
+                }
+            } catch (e) {
+                hideLoading();
+                showToast(translate('error'), 'error');
+            }
+        }
+
+        function editAd(adId) {
+            fetch(`${WORKER_URL}/ads/get/${adId}`, { headers: getHeaders() })
+                .then(r => r.json())
+                .then(data => {
+                    if (data) {
+                        document.getElementById('editAdId').value = adId;
+                        document.getElementById('editAdTitle').value = data.title || '';
+                        document.getElementById('editAdDescription').value = data.description || '';
+                        document.getElementById('editAdLink').value = data.link || '';
+                        document.getElementById('editAdDuration').value = data.duration || 5;
+                        document.getElementById('editAdStatus').value = data.status || 'active';
+                        document.getElementById('editAdModal').classList.add('active');
+                    }
+                })
+                .catch(() => showToast(translate('error'), 'error'));
+        }
+
+        async function updateAd() {
+            const id = document.getElementById('editAdId').value;
+            const title = document.getElementById('editAdTitle').value.trim();
+            const description = document.getElementById('editAdDescription').value.trim();
+            const link = document.getElementById('editAdLink').value.trim();
+            const duration = parseInt(document.getElementById('editAdDuration').value) || 5;
+            const status = document.getElementById('editAdStatus').value;
+
+            if (!title) {
+                showToast(translate('title_required'), 'error');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch(`${WORKER_URL}/ads/update`, {
+                    method: 'PUT',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ id, title, description, link, duration, status })
+                });
+                const data = await response.json();
+                hideLoading();
+                if (response.ok) {
+                    showToast(translate('ad_updated'));
+                    closeModal('editAdModal');
+                    await loadAds();
+                } else {
+                    showToast(data.error || translate('error'), 'error');
+                }
+            } catch (e) {
+                hideLoading();
+                showToast(translate('error'), 'error');
+            }
+        }
+
+        async function deleteAd(adId) {
+            if (!confirm(translate('delete_confirm'))) return;
+
+            showLoading();
+            try {
+                const response = await fetch(`${WORKER_URL}/ads/delete`, {
+                    method: 'DELETE',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ id: adId })
+                });
+                const data = await response.json();
+                hideLoading();
+                if (response.ok) {
+                    showToast(translate('ad_deleted'));
+                    await loadAds();
+                } else {
+                    showToast(data.error || translate('error'), 'error');
+                }
+            } catch (e) {
+                hideLoading();
+                showToast(translate('error'), 'error');
+            }
+        }
+
+        async function toggleAdStatus(adId) {
+            showLoading();
+            try {
+                const response = await fetch(`${WORKER_URL}/ads/toggle`, {
+                    method: 'PUT',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ id: adId })
+                });
+                const data = await response.json();
+                hideLoading();
+                if (response.ok) {
+                    showToast(translate('status_changed'));
+                    await loadAds();
+                } else {
+                    showToast(data.error || translate('error'), 'error');
+                }
+            } catch (e) {
+                hideLoading();
+                showToast(translate('error'), 'error');
+            }
+        }
+
+        function viewAdStats(adId) {
+            currentAdStatsId = adId;
+            document.getElementById('adStatsModal').classList.add('active');
+            loadAdStats('day');
+        }
+
+        async function loadAdStats(period) {
+            if (!currentAdStatsId) return;
+
+            showLoading();
+            try {
+                const response = await fetch(`${WORKER_URL}/ads/stats/${currentAdStatsId}?period=${period}`, {
+                    headers: getHeaders()
+                });
+                const data = await response.json();
+                hideLoading();
+                if (response.ok) {
+                    const container = document.getElementById('adStatsContent');
+                    if (data.length === 0) {
+                        container.innerHTML = `<div class="text-center text-muted">${translate('no_data')}</div>`;
+                        return;
+                    }
+                    container.innerHTML = `
+                        <div class="table-responsive">
+                            <table>
+                                <thead><tr><th>${translate('date')}</th><th>${translate('views')}</th><th>${translate('clicks')}</th></tr></thead>
+                                <tbody>${data.map(item => `
+                                    <tr><td>${item.date}</td><td>${item.views || 0}</td><td>${item.clicks || 0}</td></tr>
+                                `).join('')}</tbody>
+                            </table>
+                        </div>
+                    `;
+                } else {
+                    showToast(data.error || translate('error'), 'error');
+                }
+            } catch (e) {
+                hideLoading();
+                showToast(translate('error'), 'error');
+            }
+        }
+
+        // ============================================
+        // PROFIT SYSTEM
+        // ============================================
+        async function loadProfitConfig() {
+            try {
+                const response = await fetch(`${WORKER_URL}/profit/config`, {
+                    headers: getHeaders()
+                });
+                const data = await response.json();
+                if (response.ok && data) {
+                    document.getElementById('profitAdDuration').value = data.duration || 10;
+                    document.getElementById('profitAdsPerDollar').value = data.ads_per_dollar || 20;
+                    document.getElementById('profitAdValue').value = data.ad_value || 0.05;
+                    document.getElementById('profitSystemStatus').value = data.status || 'active';
+                }
+            } catch (e) {
+                console.error('Error loading profit config:', e);
+            }
+        }
+
+        async function saveProfitConfig() {
+            const duration = parseInt(document.getElementById('profitAdDuration').value) || 10;
+            const adsPerDollar = parseInt(document.getElementById('profitAdsPerDollar').value) || 20;
+            const adValue = parseFloat(document.getElementById('profitAdValue').value) || 0.05;
+            const status = document.getElementById('profitSystemStatus').value;
+
+            showLoading();
+            try {
+                const response = await fetch(`${WORKER_URL}/profit/config/update`, {
+                    method: 'PUT',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ duration, ads_per_dollar: adsPerDollar, ad_value: adValue, status })
+                });
+                const data = await response.json();
+                hideLoading();
+                if (response.ok) {
+                    showToast(translate('settings_saved'));
+                    await loadProfitConfig();
+                } else {
+                    showToast(data.error || translate('error'), 'error');
+                }
+            } catch (e) {
+                hideLoading();
+                showToast(translate('error'), 'error');
+            }
+        }
+
+        async function getProfitSystemStatus() {
+            try {
+                const response = await fetch(`${WORKER_URL}/profit/status`, {
+                    headers: getHeaders()
+                });
+                const data = await response.json();
+                return data.status || 'active';
+            } catch { return 'active'; }
+        }
+
+        async function loadProfitIcons() {
+            try {
+                const response = await fetch(`${WORKER_URL}/profit/icons`, {
+                    headers: getHeaders()
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    renderProfitIcons(data);
+                }
+            } catch (e) {
+                console.error('Error loading profit icons:', e);
+            }
+        }
+
+        function renderProfitIcons(icons) {
+            const container = document.getElementById('profitIconsList');
+            if (container) {
+                container.innerHTML = icons.map(icon => `
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-color);">
+                        <span><strong>${icon.name}</strong> - ${icon.duration}s, $${icon.ad_value}/${translate('ad')}</span>
+                        <button class="btn btn-sm btn-danger" onclick="deleteProfitIcon('${icon.id}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                `).join('') || `<div class="text-muted">${translate('no_data')}</div>`;
+            }
+
+            const userContainer = document.getElementById('profitAdsGrid');
+            if (userContainer && currentUserRole === 'user') {
+                userContainer.innerHTML = icons.map(icon => `
+                    <div class="profit-icon-card">
+                        <i class="fas fa-coins"></i>
+                        <h4>${icon.name}</h4>
+                        <p class="text-muted">${translate('duration')}: ${icon.duration}s</p>
+                        <p class="text-muted">${translate('ad_value')}: $${icon.ad_value}</p>
+                        <button class="btn btn-success mt-8" onclick="watchProfitAd('${icon.id}')">
+                            <i class="fas fa-play"></i> ${translate('watch_ad')}
+                        </button>
+                    </div>
+                `).join('') || `<div class="text-muted text-center">${translate('no_data')}</div>`;
+            }
+        }
+
+        async function addProfitIcon() {
+            const name = document.getElementById('newProfitIconName').value.trim();
+            const duration = parseInt(document.getElementById('newProfitIconDuration').value) || 10;
+            const adsPerDollar = parseInt(document.getElementById('newProfitIconAdsPerDollar').value) || 20;
+            const adValue = parseFloat(document.getElementById('newProfitIconValue').value) || 0.05;
+
+            if (!name) {
+                showToast(translate('name_required'), 'error');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch(`${WORKER_URL}/profit/icon/create`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ name, duration, ads_per_dollar: adsPerDollar, ad_value: adValue })
+                });
+                const data = await response.json();
+                hideLoading();
+                if (response.ok) {
+                    showToast(translate('icon_added'));
+                    document.getElementById('newProfitIconName').value = '';
+                    await loadProfitIcons();
+                } else {
+                    showToast(data.error || translate('error'), 'error');
+                }
+            } catch (e) {
+                hideLoading();
+                showToast(translate('error'), 'error');
+            }
+        }
+
+        async function deleteProfitIcon(iconId) {
+            if (!confirm(translate('delete_confirm'))) return;
+
+            showLoading();
+            try {
+                const response = await fetch(`${WORKER_URL}/profit/icon/delete`, {
+                    method: 'DELETE',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ id: iconId })
+                });
+                const data = await response.json();
+                hideLoading();
+                if (response.ok) {
+                    showToast(translate('icon_deleted'));
+                    await loadProfitIcons();
+                } else {
+                    showToast(data.error || translate('error'), 'error');
+                }
+            } catch (e) {
+                hideLoading();
+                showToast(translate('error'), 'error');
+            }
+        }
+
+        function watchProfitAd(iconId = null) {
+            currentProfitIconId = iconId;
+            document.getElementById('profitAdModal').classList.add('active');
+            document.getElementById('profitAdDisplay').innerHTML = `<p>${translate('ad_ready')}</p>`;
+            document.getElementById('profitAdTimer').textContent = '10';
+            document.getElementById('profitAdWatchBtn').style.display = 'block';
+        }
+
+        function startProfitAdWatch() {
+            const btn = document.getElementById('profitAdWatchBtn');
+            btn.style.display = 'none';
+            let time = 10;
+            const timer = document.getElementById('profitAdTimer');
+            timer.textContent = time;
+
+            document.getElementById('profitAdDisplay').innerHTML = `
+                <div style="padding:20px;background:var(--bg-hover);border-radius:12px;">
+                    <i class="fas fa-ad" style="font-size:48px;color:var(--primary);"></i>
+                    <p style="margin-top:8px;">${translate('watching')}...</p>
+                </div>
+            `;
+
+            const interval = setInterval(() => {
+                time--;
+                timer.textContent = time;
+                if (time <= 0) {
+                    clearInterval(interval);
+                    completeProfitAd();
+                }
+            }, 1000);
+        }
+
+        async function completeProfitAd() {
+            document.getElementById('profitAdDisplay').innerHTML = `<p style="color:var(--success);">✅ ${translate('ad_complete')}</p>`;
+            document.getElementById('profitAdTimer').textContent = '✓';
+
+            try {
+                const response = await fetch(`${WORKER_URL}/profit/watch`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ icon_id: currentProfitIconId })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    profitBalance = data.balance || 0;
+                    profitAdsWatched = data.total_ads || 0;
+                    updateProfitBar();
+                    showToast(translate('profit_earned', { amount: data.earned || 0 }));
+                    setTimeout(() => closeModal('profitAdModal'), 1500);
+                } else {
+                    showToast(data.error || translate('error'), 'error');
+                    closeModal('profitAdModal');
+                }
+            } catch (e) {
+                showToast(translate('error'), 'error');
+                closeModal('profitAdModal');
+            }
+        }
+
+        async function updateProfitBar() {
+            try {
+                const response = await fetch(`${WORKER_URL}/profit/balance`, {
+                    headers: getHeaders()
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    profitBalance = data.balance || 0;
+                    profitAdsWatched = data.total_ads || 0;
+                }
+            } catch (e) {}
+
+            document.getElementById('profitBalance').textContent = `$${profitBalance.toFixed(2)}`;
+            document.getElementById('profitAdsCount').textContent = profitAdsWatched || 0;
+        }
+
+        async function withdrawProfit() {
+            if (profitBalance <= 0) {
+                showToast(translate('insufficient_balance'), 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${WORKER_URL}/profit/withdraw`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ amount: profitBalance })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    showToast(translate('profit_withdrawn', { amount: profitBalance.toFixed(2) }));
+                    profitBalance = 0;
+                    updateProfitBar();
+                } else {
+                    showToast(data.error || translate('error'), 'error');
+                }
+            } catch (e) {
+                showToast(translate('error'), 'error');
+            }
+        }
+
+        // ============================================
+        // NOTIFICATIONS
+        // ============================================
+        async function loadNotifications() {
+            try {
+                const response = await fetch(`${WORKER_URL}/notifications`, {
+                    headers: getHeaders()
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    renderNotifications(data);
+                }
+            } catch (e) {
+                console.error('Error loading notifications:', e);
+            }
+        }
+
+        function renderNotifications(notifications) {
+            const container = document.getElementById('notificationsList');
+            const count = document.getElementById('notifCount');
+            if (container) {
+                container.innerHTML = notifications.map(n => `
+                    <div class="notification-item">
+                        <div class="noti-title">${n.title || translate('notification')}</div>
+                        <div>${n.message}</div>
+                        <div class="noti-time">${formatDate(n.created_at)}</div>
+                    </div>
+                `).join('') || `<div class="text-muted text-center" style="padding:20px;">${translate('no_data')}</div>`;
+            }
+            if (count) {
+                const unread = notifications.filter(n => !n.read).length;
+                count.textContent = unread;
+                count.style.display = unread > 0 ? 'flex' : 'none';
+            }
+        }
+
+        function toggleNotifications() {
+            const dropdown = document.getElementById('notificationsDropdown');
+            dropdown.classList.toggle('active');
+            if (dropdown.classList.contains('active')) {
+                fetch(`${WORKER_URL}/notifications/read`, {
+                    method: 'PUT',
+                    headers: getHeaders()
+                }).catch(() => {});
+            }
+        }
+
+        // ============================================
+        // DEV PANEL - USERS
+        // ============================================
+        async function loadDevUsers() {
+            try {
+                const response = await fetch(`${WORKER_URL}/admin/users`, {
+                    headers: getHeaders()
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    renderDevUsers(data);
+                }
+            } catch (e) {
+                console.error('Error loading users:', e);
+            }
+        }
+
+        function renderDevUsers(users) {
+            const body = document.getElementById('devUsersBody');
+            if (body) {
+                body.innerHTML = users.map(u => `
+                    <tr>
+                        <td>${u.username || translate('unknown')}</td>
+                        <td><span class="status-badge ${u.role === 'dev' ? 'active' : u.role === 'support' ? 'warning' : ''}">${u.role === 'dev' ? translate('dev_role') : u.role === 'support' ? translate('support_role') : translate('user_role')}</span></td>
+                        <td><span class="status-badge ${u.status === 'active' ? 'active' : 'inactive'}">${u.status === 'active' ? translate('active') : translate('inactive')}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-success" onclick="promoteUser('${u.id}','support')"><i class="fas fa-user-cog"></i></button>
+                            <button class="btn btn-sm btn-danger" onclick="demoteUser('${u.id}')"><i class="fas fa-user-minus"></i></button>
+                            <button class="btn btn-sm btn-warning" onclick="toggleUserStatus('${u.id}')"><i class="fas ${u.status === 'active' ? 'fa-pause' : 'fa-play'}"></i></button>
+                            <button class="btn btn-sm btn-primary" onclick="manageSubscription('${u.id}','${u.username}')"><i class="fas fa-crown"></i></button>
+                            <button class="btn btn-sm btn-secondary" onclick="copyText('${u.id}')"><i class="fas fa-copy"></i></button>
+                        </td>
+                    </tr>
+                `).join('') || `<tr><td colspan="4" class="text-center text-muted">${translate('no_data')}</td></tr>`;
+            }
+        }
+
+        function searchUsers() {
+            const query = document.getElementById('devSearchUser').value.toLowerCase();
+            document.querySelectorAll('#devUsersBody tr').forEach(row => {
+                row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none';
+            });
+        }
+
+        async function promoteUser(userId, role) {
+            if (!confirm(translate('promote_confirm'))) return;
+
+            showLoading();
+            try {
+                const response = await fetch(`${WORKER_URL}/admin/promote`, {
+                    method: 'PUT',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ user_id: userId, role })
+                });
+                const data = await response.json();
+                hideLoading();
+                if (response.ok) {
+                    showToast(translate('promoted'));
+                    await loadDevUsers();
+                } else {
+                    showToast(data.error || translate('error'), 'error');
+                }
+            } catch (e) {
+                hideLoading();
+                showToast(translate('error'), 'error');
+            }
+        }
+
+        async function demoteUser(userId) {
+            if (!confirm(translate('demote_confirm'))) return;
+
+            showLoading();
+            try {
+                const response = await fetch(`${WORKER_URL}/admin/demote`, {
+                    method: 'PUT',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ user_id: userId })
+                });
+                const data = await response.json();
+                hideLoading();
+                if (response.ok) {
+                    showToast(translate('demoted'));
+                    await loadDevUsers();
+                } else {
+                    showToast(data.error || translate('error'), 'error');
+                }
+            } catch (e) {
+                hideLoading();
+                showToast(translate('error'), 'error');
+            }
+        }
+
+        async function toggleUserStatus(userId) {
+            showLoading();
+            try {
+                const response = await fetch(`${WORKER_URL}/admin/toggle-status`, {
+                    method: 'PUT',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ user_id: userId })
+                });
+                const data = await response.json();
+                hideLoading();
+                if (response.ok) {
+                    showToast(translate('status_changed'));
+                    await loadDevUsers();
+                } else {
+                    showToast(data.error || translate('error'), 'error');
+                }
+            } catch (e) {
+                hideLoading();
+                showToast(translate('error'), 'error');
+            }
+        }
+
+        function manageSubscription(userId, username) {
+            const plan = prompt(`${translate('select_plan')} ${username}:\n1- ${translate('plan_monthly')} ($2.50)\n2- ${translate('plan_quarterly')} ($6.75)\n3- ${translate('plan_semiannual')} ($13)\n4- ${translate('plan_annual')} ($22)`, '1');
+            if (!plan) return;
+
+            const plans = {
+                '1': { name: translate('plan_monthly'), price: 2.50, duration: 'monthly' },
+                '2': { name: translate('plan_quarterly'), price: 6.75, duration: 'quarterly' },
+                '3': { name: translate('plan_semiannual'), price: 13, duration: 'semiannual' },
+                '4': { name: translate('plan_annual'), price: 22, duration: 'annual' }
+            };
+
+            const selected = plans[plan];
+            if (!selected) {
+                showToast(translate('error'), 'error');
+                return;
+            }
+
+            showLoading();
+            fetch(`${WORKER_URL}/admin/subscribe`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify({ user_id: userId, plan: selected.duration, price: selected.price, plan_name: selected.name })
+            })
+            .then(r => r.json())
+            .then(data => {
+                hideLoading();
+                if (data.success) {
+                    showToast(translate('subscription_activated'));
+                    loadDevUsers();
+                    loadSubscriptions();
+                } else {
+                    showToast(data.error || translate('error'), 'error');
+                }
+            })
+            .catch(() => { hideLoading(); showToast(translate('error'), 'error'); });
+        }
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(translate('copied'));
+            }).catch(() => {
+                const input = document.createElement('input');
+                input.value = text;
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('copy');
+                input.remove();
+                showToast(translate('copied'));
+            });
+        }
+
+        // ============================================
+        // SUBSCRIPTIONS MANAGEMENT
+        // ============================================
+        async function loadSubscriptions() {
+            try {
+                const response = await fetch(`${WORKER_URL}/admin/subscriptions`, {
+                    headers: getHeaders()
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    renderSubscriptions(data);
+                }
+            } catch (e) {
+                console.error('Error loading subscriptions:', e);
+            }
+        }
+
+        function renderSubscriptions(subscriptions) {
+            const body = document.getElementById('devSubscriptionsBody');
+            if (body) {
+                body.innerHTML = subscriptions.map(s => `
+                    <tr>
+                        <td>${s.username || translate('unknown')}</td>
+                        <td>${s.plan_name || s.plan}</td>
+                        <td><span class="status-badge ${s.status === 'active' ? 'active' : 'pending'}">${s.status === 'active' ? translate('active') : translate('pending')}</span></td>
+                        <td>
+                            ${s.status !== 'active' ? `<button class="btn btn-sm btn-success" onclick="activateSubscription('${s.id}')"><i class="fas fa-check"></i> ${translate('activate')}</button>` : ''}
+                            <button class="btn btn-sm btn-danger" onclick="cancelSubscription('${s.id}')"><i class="fas fa-times"></i> ${translate('cancel')}</button>
+                        </td>
+                    </tr>
+                `).join('') || `<tr><td colspan="4" class="text-center text-muted">${translate('no_data')}</td></tr>`;
+            }
+        }
+
+        async function activateSubscription(subId) {
+            if (!confirm(translate('activate_confirm'))) return;
+
+            showLoading();
+            try {
+                const response = await fetch(`${WORKER_URL}/admin/subscription/activate`, {
+                    method: 'PUT',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ subscription_id: subId })
+                });
+                const data = await response.json();
+                hideLoading();
+                if (response.ok) {
+                    showToast(translate('activated'));
+                    await loadSubscriptions();
+                    await loadStats();
+                } else {
+                    showToast(data.error || translate('error'), 'error');
+                }
+            } catch (e) {
+                hideLoading();
+                showToast(translate('error'), 'error');
+            }
+        }
+
+        async function cancelSubscription(subId) {
+            if (!confirm(translate('cancel_confirm'))) return;
+
+            showLoading();
+            try {
+                const response = await fetch(`${WORKER_URL}/admin/subscription/cancel`, {
+                    method: 'PUT',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ subscription_id: subId })
+                });
+                const data = await response.json();
+                hideLoading();
+                if (response.ok) {
+                    showToast(translate('cancelled'));
+                    await loadSubscriptions();
+                    await loadStats();
+                } else {
+                    showToast(data.error || translate('error'), 'error');
+                }
+            } catch (e) {
+                hideLoading();
+                showToast(translate('error'), 'error');
+            }
+        }
+
+        // ============================================
+        // DEV SETTINGS & API
+        // ============================================
+        function showDevTab(tab) {
+            document.querySelectorAll('.dev-tab').forEach(t => t.style.display = 'none');
+            const target = document.getElementById(`dev-tab-${tab}`);
+            if (target) target.style.display = 'block';
+        }
+
+        async function saveDevSettings() {
+            const appName = document.getElementById('devAppName').value.trim();
+            const maintenance = document.getElementById('devMaintenance').value === 'true';
+            const activeModel = document.getElementById('devActiveModel').value;
+
+            showLoading();
+            try {
+                const response = await fetch(`${WORKER_URL}/admin/settings`, {
+                    method: 'PUT',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ app_name: appName, maintenance, active_model: activeModel })
+                });
+                const data = await response.json();
+                hideLoading();
+                if (response.ok) {
+                    showToast(translate('settings_saved'));
+                    document.title = appName;
+                    await checkMaintenance();
+                } else {
+                    showToast(data.error || translate('error'), 'error');
+                }
+            } catch (e) {
+                hideLoading();
+                showToast(translate('error'), 'error');
+            }
+        }
+
+        async function saveApiKeys() {
+            const gemini = document.getElementById('devGeminiKey').value.trim();
+            const chatgpt = document.getElementById('devChatGPTKey').value.trim();
+            const grok = document.getElementById('devGrokKey').value.trim();
+            const active = document.getElementById('devApiActiveModel').value;
+
+            if (!gemini && !chatgpt && !grok) {
+                showToast(translate('key_required'), 'error');
+                return;
+            }
+
+            showLoading();
+            try {
+                const response = await fetch(`${WORKER_URL}/admin/api-keys`, {
+                    method: 'PUT',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ gemini, chatgpt, grok, active_model: active })
+                });
+                const data = await response.json();
+                hideLoading();
+                if (response.ok) {
+                    showToast(translate('keys_saved'));
+                    document.getElementById('devGeminiKey').value = '';
+                    document.getElementById('devChatGPTKey').value = '';
+                    document.getElementById('devGrokKey').value = '';
+                } else {
+                    showToast(data.error || translate('error'), 'error');
+                }
+            } catch (e) {
+                hideLoading();
+                showToast(translate('error'), 'error');
+            }
+        }
+
+        async function checkMaintenance() {
+            try {
+                const response = await fetch(`${WORKER_URL}/settings/maintenance`, {
+                    headers: getHeaders()
+                });
+                const data = await response.json();
+                if (data.maintenance) {
+                    document.getElementById('maintenanceOverlay').classList.add('active');
+                } else {
+                    document.getElementById('maintenanceOverlay').classList.remove('active');
+                }
+            } catch (e) {}
+        }
+
+        // ============================================
+        // MODALS
+        // ============================================
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        document.querySelectorAll('.modal-overlay').forEach(el => {
+            el.addEventListener('click', function(e) {
+                if (e.target === this) this.classList.remove('active');
+            });
+        });
+
+        // ============================================
+        // INIT
+        // ============================================
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            isDarkMode = true;
+            document.documentElement.setAttribute('data-theme', 'dark');
+            document.getElementById('themeIcon').className = 'fas fa-sun';
+            document.getElementById('themeIconTop').className = 'fas fa-sun';
+            document.getElementById('themeText').textContent = translate('light_mode');
+        }
+
+        // تهيئة الترجمة
+        document.addEventListener('DOMContentLoaded', function() {
+            createLanguageSelector();
+            const savedLang = localStorage.getItem('app_language') || 'ar';
+            if (savedLang && SUPPORTED_LANGUAGES[savedLang]) {
+                currentLanguage = savedLang;
+                applyTranslations();
+                const selector = document.getElementById('languageSelector');
+                if (selector) selector.value = savedLang;
+            }
+
+            console.log('🌍 تم تفعيل دعم ' + Object.keys(SUPPORTED_LANGUAGES).length + ' لغة عالمية!');
+            console.log(`📍 اللغة الحالية: ${SUPPORTED_LANGUAGES[currentLanguage]}`);
+            console.log('👑 Admin: admin | Password: admin123');
+        });
+
+        if (localStorage.getItem('user')) {
+            initializeApp();
+        } else {
+            document.getElementById('appContainer').style.display = 'none';
+            document.getElementById('authContainer').style.display = 'flex';
+        }
+
+        // ============================================
+        // EXPOSE GLOBALS
+        // ============================================
+        window.showPage = showPage;
+        window.toggleSidebar = toggleSidebar;
+        window.toggleTheme = toggleTheme;
+        window.toggleLanguage = toggleLanguage;
+        window.handleAuth = handleAuth;
+        window.logout = logout;
+        window.generateContent = generateContent;
+        window.summarizeText = summarizeText;
+        window.subscribePlan = subscribePlan;
+        window.sendSupportMessage = sendSupportMessage;
+        window.replyToTicket = replyToTicket;
+        window.closeTicket = closeTicket;
+        window.sendBroadcast = sendBroadcast;
+        window.updateSettings = updateSettings;
+        window.loadAds = loadAds;
+        window.showAddAdModal = showAddAdModal;
+        window.addAd = addAd;
+        window.editAd = editAd;
+        window.updateAd = updateAd;
+        window.deleteAd = deleteAd;
+        window.toggleAdStatus = toggleAdStatus;
+        window.viewAdStats = viewAdStats;
+        window.loadAdStats = loadAdStats;
+        window.loadProfitConfig = loadProfitConfig;
+        window.saveProfitConfig = saveProfitConfig;
+        window.loadProfitIcons = loadProfitIcons;
+        window.addProfitIcon = addProfitIcon;
+        window.deleteProfitIcon = deleteProfitIcon;
+        window.watchProfitAd = watchProfitAd;
+        window.startProfitAdWatch = startProfitAdWatch;
+        window.withdrawProfit = withdrawProfit;
+        window.toggleNotifications = toggleNotifications;
+        window.loadDevUsers = loadDevUsers;
+        window.searchUsers = searchUsers;
+        window.promoteUser = promoteUser;
+        window.demoteUser = demoteUser;
+        window.toggleUserStatus = toggleUserStatus;
+        window.manageSubscription = manageSubscription;
+        window.copyText = copyText;
+        window.loadSubscriptions = loadSubscriptions;
+        window.activateSubscription = activateSubscription;
+        window.cancelSubscription = cancelSubscription;
+        window.showDevTab = showDevTab;
+        window.saveDevSettings = saveDevSettings;
+        window.saveApiKeys = saveApiKeys;
+        window.closeModal = closeModal;
+        window.changeLanguage = changeLanguage;
+        window.translate = translate;
+    </script>
+</body>
+  </html>
